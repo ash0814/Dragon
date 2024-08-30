@@ -1,9 +1,12 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+
+#include "InputActionValue.h"
+#include "Components/TimelineComponent.h"
+#include "Curves/CurveFloat.h"
+
 #include "C_Player.generated.h"
 
 UCLASS()
@@ -11,55 +14,90 @@ class DRAGON_API AC_Player : public ACharacter
 {
 	GENERATED_BODY()
 
-public:
-	// Sets default values for this character's properties
+private: //Player Camera Limit
+	UPROPERTY(EditDefaultsOnly, Category = "Camera")
+	FVector2D PitchRange = FVector2D(-40, +40);
+	/////////////////////////////////////////////////////////////////
+
+public://Player Base Components
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+	class UCapsuleComponent* Capsule;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+	class USkeletalMeshComponent* SkeletalMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+	class USpringArmComponent* SpringArm;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+	class UCameraComponent* Camera;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+	class UTimelineComponent* TimelineCom;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+	class UC_WeaponComponent* WeaponComp;
+	/////////////////////////////////////////////////////////////////
+
+public: //INPUT COMPONENT
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	class UInputMappingContext* IMC_Player;	//InputMappinContext
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	class UInputAction* IA_Move_Player;	//Movement
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	class UInputAction* IA_Look_Player;	//Look
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	class UInputAction* IA_Run_Player; //Run
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	class UInputAction* IA_Equip; //Run
+	/////////////////////////////////////////////////////////////////
+
+private:
+	UPROPERTY(EditAnywhere, Category = "Timeline")
+	class UCurveFloat* ZoomCurve;
+
+
+public: //생성자
 	AC_Player();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
+public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-public:
-	// 헤더 파일 (TestPlayer.h)
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
-	class USpringArmComponent* springArmComp;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
-	class UCameraComponent* tpsCamComp;
+protected://Player Move Input
+	void InputMove(const FInputActionValue& values);
+	void InputLook(const FInputActionValue& values);
 
-	// 입력
-public:
-	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	class UInputMappingContext* imc_TPS;
-	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	class UInputAction* ia_Lookup;
-	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	class UInputAction* ia_Turn;
+private:
+	UFUNCTION()
+	void CameraZoom(float alpha);
 
-	//좌우 입력 처리
-	void Turn(const struct FInputActionValue& inputValue);
-	//상하 회전 입력
-	void LookUp(const struct FInputActionValue& inputValue);
-	void Turn(float value);
-	void LookUp(float value);
-	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	class UInputAction* ia_Move;
+	void SetTimeline();
 
-	UPROPERTY(EditAnywhere, Category = PlayerSetting)
-	float walkSpeed = 600;
-	FVector direction;
-	void Move(const struct FInputActionValue& inputValue);
+protected://Player Move Func
+	void PlayerRun();
 
-	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	class UInputAction* ia_jump;
-	//점프 입력 처리 함수
-	void InputJump(const struct FInputActionValue& inputValue);
-	void PlayerMove();
+public://Local Value
+	//현재 Run인지 아닌지 check
+	bool bIsRun;
+
+	//Curve 조건 확인
+	bool bIsIdle;
+
+	bool bIsWeapon;
+
+private:
+	//Timeline Update에 대한 델리게이트
+	FOnTimelineFloat CameraZoomHandler;
+	float DefaultSpringArmLength;
+	float ZoomedSpringArmLength;
+
 };
-
