@@ -39,6 +39,12 @@ protected: //Player Data
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Player Data")
 	bool bPlayerIsWeapon;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Player Data")
+	bool bHandIK;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Player Data")
+	FVector LeftHandLocation;
+
 protected: //Set OrientationAngle
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Orientation Angle")
 	float F_OrientationAngle;

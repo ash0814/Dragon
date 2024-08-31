@@ -48,7 +48,8 @@ void UC_AnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	//Set IsShouldMove
 	ShouldMove();
 
-
+	bHandIK = Weapon->IsUnarmedMode() == false;
+	LeftHandLocation = Weapon->GetLefrHandLocation();
 }
 
 void UC_AnimInstance::PlayerCurrentSpeed()

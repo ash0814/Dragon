@@ -86,7 +86,8 @@ private:
 	void SetTimeline();
 
 protected://Player Move Func
-	void PlayerRun();
+	void OnRun();
+	void OffRun();
 
 public://Local Value
 	//현재 Run인지 아닌지 check

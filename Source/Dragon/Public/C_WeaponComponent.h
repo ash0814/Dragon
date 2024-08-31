@@ -8,7 +8,7 @@
 UENUM(BlueprintType)
 enum class EWeaponType : uint8
 {
-	AK47, MAX
+	AK47, MAX,
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FWeaponTypeChanged, EWeaponType, InPrevType, EWeaponType, InNewType);
@@ -55,6 +55,9 @@ public://Notify Call
 public:
 	void Begin_Fire();
 	void End_Fire();
+
+public:
+	FVector GetLefrHandLocation();
 
 public:
 	FWeaponTypeChanged OnWeaponTypeChanged;

@@ -163,12 +163,17 @@ void AC_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	{
 		//Player Moving
 		EnhancedInputComponent->BindAction(IA_Move_Player, ETriggerEvent::Triggered, this, &AC_Player::InputMove);
+
 		//Player Looking
 		EnhancedInputComponent->BindAction(IA_Look_Player, ETriggerEvent::Triggered, this, &AC_Player::InputLook);
+
 		//Player Run
-		EnhancedInputComponent->BindAction(IA_Run_Player, ETriggerEvent::Started, this, &AC_Player::PlayerRun);
+		EnhancedInputComponent->BindAction(IA_Run_Player, ETriggerEvent::Started, this, &AC_Player::OnRun);
+		EnhancedInputComponent->BindAction(IA_Run_Player, ETriggerEvent::Completed, this, &AC_Player::OffRun);
+
 		//Player Weapon
 		EnhancedInputComponent->BindAction(IA_Equip, ETriggerEvent::Started, WeaponComp, &UC_WeaponComponent::SetAK47Mode);
+
 		//Player Fire
 		EnhancedInputComponent->BindAction(IA_Fire, ETriggerEvent::Triggered, WeaponComp, &UC_WeaponComponent::Begin_Fire);
 		EnhancedInputComponent->BindAction(IA_Fire, ETriggerEvent::Completed, WeaponComp, &UC_WeaponComponent::End_Fire);
@@ -244,25 +249,31 @@ void AC_Player::SetTimeline()
 		CameraZoom(TimelineCom->GetPlaybackPosition());
 	}
 }
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 //Local Function
-void AC_Player::PlayerRun()
+void AC_Player::OnRun()
 {
-
 	if (GetVelocity().Size() > 0.0f)
 	{
-		bIsRun = !bIsRun;
+		bIsRun = true;
 
 		if (bIsRun == true)
 		{
 			TimelineCom->Play();
 			GetCharacterMovement()->MaxWalkSpeed = 600.0f;
 		}
-		else if (bIsRun == false)
-		{
-			TimelineCom->Reverse();
-			GetCharacterMovement()->MaxWalkSpeed = 250.0f;
-		}
+	}
+}
+
+void AC_Player::OffRun()
+{
+	bIsRun = false;
+
+	if (bIsRun == false)
+	{
+		TimelineCom->Reverse();
+		GetCharacterMovement()->MaxWalkSpeed = 250.0f;
 	}
 }

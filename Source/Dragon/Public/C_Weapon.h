@@ -41,7 +41,7 @@ protected:	//Fire Value
 	float RecoilRate;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
-	float RecoilAngle = 5.0f;
+	float RecoilAngle;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Hit")

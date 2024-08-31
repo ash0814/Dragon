@@ -1,11 +1,13 @@
 #include "C_Weapon.h"
 #include "CHelpers.h"
 
+#include "C_WeaponComponent.h"
+#include "C_Bullet.h"
+
 #include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/SkeletalMeshComponent.h"
 
-#include "C_WeaponComponent.h"
 
 AC_Weapon::AC_Weapon()
 {
@@ -15,6 +17,13 @@ AC_Weapon::AC_Weapon()
 	SetRootComponent(Root);
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(Root);
+	
+	//BulletClass DefaultSetting
+	{
+		static ConstructorHelpers::FClassFinder<AC_Bullet> bullet(TEXT("/Script/Engine.Blueprint'/Game/Player/P_BulePrint/BP_C_Bullet.BP_C_Bullet_C'"));
+		if (bullet.Succeeded())
+			BulletClass = bullet.Class;
+	}
 
 }
 
@@ -124,15 +133,36 @@ void AC_Weapon::OnFiring()
 	FVector direction = camera->GetForwardVector();
 	FTransform transform = camera->GetComponentToWorld();
 
+	//LineTrace Start & End Locaiton
 	FVector start = transform.GetLocation() + direction;
 
 	direction = UKismetMathLibrary::RandomUnitVectorInConeInDegrees(direction, RecoilAngle);
 
 	FVector end = transform.GetLocation() + direction * HitDistance;
+	///////////////////////////////////////////////////
 
+	//LineTrace 
 	TArray<AActor*> ignores;
-
 	FHitResult hitResult;
-	UKismetSystemLibrary::LineTraceSingle(GetWorld(), start, end, ETraceTypeQuery::TraceTypeQuery1, false, ignores, EDrawDebugTrace::ForDuration, hitResult, true);
+	UKismetSystemLibrary::LineTraceSingle(GetWorld(), start, end, ETraceTypeQuery::TraceTypeQuery1, false, ignores, EDrawDebugTrace::None, hitResult, true);
+
+	//Recoil
+	OwnerCharacter->AddControllerPitchInput(-RecoilRate * UKismetMathLibrary::RandomFloatInRange(0.5f, 1.2f));
+	/////////////////////////////////////////////////////
+
+	if (!!BulletClass)
+	{
+		FVector location = Mesh->GetSocketLocation("Muzzle_Bullet");
+
+		FActorSpawnParameters params;
+		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		AC_Bullet* bullet = GetWorld()->SpawnActor<AC_Bullet>(BulletClass, location, direction.Rotation(), params);
+
+		if (!!bullet)
+		{
+			bullet->Shoot(direction);
+		}
+	}
 }
 
