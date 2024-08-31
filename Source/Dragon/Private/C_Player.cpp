@@ -101,14 +101,14 @@ AC_Player::AC_Player()
 		ACharacter::GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 
 		//SpringArm, Camera Setting
-		SpringArm->SetRelativeLocation(FVector(0.0f, 0.0f, 140.0f));
-		SpringArm->TargetArmLength = 200.0f;
-		SpringArm->SocketOffset = FVector(0.0f, 50.0f, 0.0f);
+		SpringArm->SetRelativeLocation(FVector(0.0f, 0.0f, 160.0f));
+		SpringArm->TargetArmLength = 130.0f;
+		SpringArm->SocketOffset = FVector(0.0f, 60.0f, 0.0f);
 		SpringArm->bUsePawnControlRotation = true;
 		SpringArm->bEnableCameraLag = true;
 
-		DefaultSpringArmLength = 200.0f;
-		ZoomedSpringArmLength = 300.0f;
+		DefaultSpringArmLength = 130.0f;
+		ZoomedSpringArmLength = 200.0f;
 
 
 		//Player Movement Setting
@@ -208,7 +208,7 @@ void AC_Player::CameraZoom(float alpha)
 		float ArmLength = FMath::Lerp(DefaultSpringArmLength, ZoomedSpringArmLength, alpha);
 		SpringArm->TargetArmLength = ArmLength;
 
-		float RunOffset = FMath::Lerp(50.0f, 0.0f, alpha);
+		float RunOffset = FMath::Lerp(60.0f, 0.0f, alpha);
 		SpringArm->SocketOffset.Y = RunOffset;
 	}
 	else if (bIsRun == false)
@@ -217,7 +217,7 @@ void AC_Player::CameraZoom(float alpha)
 		float ArmLength = FMath::Lerp(DefaultSpringArmLength, ZoomedSpringArmLength, alpha);
 		SpringArm->TargetArmLength = ArmLength;
 
-		float RunOffset = FMath::Lerp(50.0f, 0.0f, alpha);
+		float RunOffset = FMath::Lerp(60.0f, 0.0f, alpha);
 		SpringArm->SocketOffset.Y = RunOffset;
 	}
 }

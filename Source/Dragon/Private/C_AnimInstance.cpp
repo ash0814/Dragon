@@ -5,6 +5,7 @@
 #include "C_WeaponComponent.h"
 
 #include "Math/UnrealMathUtility.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 void UC_AnimInstance::NativeBeginPlay()
@@ -37,6 +38,9 @@ void UC_AnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	//Set Direciton
 	DirectionCalculation();
+
+	//Set Aim Offset Pitch
+	SetDirectionPitch();
 
 	//Set Orientation Angle
 	SetOrientationAngle();
@@ -86,6 +90,8 @@ void UC_AnimInstance::DirectionCalculation()
 	{
 		MovementType = EMovementType::Left;
 	}
+
+
 }
 
 void UC_AnimInstance::ShouldMove()
@@ -104,6 +110,16 @@ void UC_AnimInstance::SetOrientationAngle()
 	R_OrientationAngle = Direction - 90.0f;
 	B_OrientationAngle = Direction - 180.0f;
 	L_OrientationAngle = Direction - (-90.0f);
+}
+
+void UC_AnimInstance::SetDirectionPitch()
+{
+	FRotator rotator = OwnerCharacter->GetVelocity().ToOrientationRotator();
+	FRotator rotator2 = OwnerCharacter->GetControlRotation();
+	FRotator delta = UKismetMathLibrary::NormalizedDeltaRotator(rotator, rotator);
+	PrevRotation = UKismetMathLibrary::RInterpTo(PrevRotation, delta, GetDeltaSeconds(), 25);
+
+	Pitch = UKismetMathLibrary::FInterpTo(Pitch, OwnerCharacter->GetBaseAimRotation().Pitch, GetDeltaSeconds(), 25);
 }
 
 void UC_AnimInstance::OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType)

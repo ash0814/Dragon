@@ -77,6 +77,8 @@ private:
 	void ShouldMove();
 	//Orientation 설정함수
 	void SetOrientationAngle();
+	//Offset을 위한 Pitch계산 함수
+	void SetDirectionPitch();
 
 private:
 	UFUNCTION()
@@ -91,6 +93,7 @@ private: //class Value
 	class AC_Player* OwnerCharacter;
 	class UCharacterMovementComponent* MovementCom;
 	class UC_WeaponComponent* Weapon;
+	FRotator PrevRotation;
 
 
 };
