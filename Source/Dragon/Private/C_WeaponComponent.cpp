@@ -106,3 +106,18 @@ void UC_WeaponComponent::End_Equip()
 
 	GetCurrentWeapon()->End_Equip();
 }
+
+void UC_WeaponComponent::Begin_Fire()
+{
+	CheckNUll(GetCurrentWeapon());
+	CheckFalse(GetCurrentWeapon()->CanFire());
+
+	GetCurrentWeapon()->Begin_Fire();
+}
+
+void UC_WeaponComponent::End_Fire()
+{
+	CheckNUll(GetCurrentWeapon());
+
+	GetCurrentWeapon()->End_Fire();
+}

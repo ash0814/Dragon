@@ -84,12 +84,20 @@ AC_Player::AC_Player()
 					IA_Run_Player = Run.Object;
 			}
 
-			//Input Gun
+			//Input Equip
 			{
 				static ConstructorHelpers::FObjectFinder<UInputAction> Gun(TEXT("/Script/EnhancedInput.InputAction'/Game/Player/P_Input/IA_Equip.IA_Equip'"));
 
 				if (Gun.Succeeded())
 					IA_Equip = Gun.Object;
+			}
+
+			//Input Fire
+			{
+				static ConstructorHelpers::FObjectFinder<UInputAction> Fire(TEXT("/Script/EnhancedInput.InputAction'/Game/Player/P_Input/IA_Fire.IA_Fire'"));
+
+				if (Fire.Succeeded())
+					IA_Fire = Fire.Object;
 			}
 		}
 	}
@@ -161,6 +169,9 @@ void AC_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		EnhancedInputComponent->BindAction(IA_Run_Player, ETriggerEvent::Started, this, &AC_Player::PlayerRun);
 		//Player Weapon
 		EnhancedInputComponent->BindAction(IA_Equip, ETriggerEvent::Started, WeaponComp, &UC_WeaponComponent::SetAK47Mode);
+		//Player Fire
+		EnhancedInputComponent->BindAction(IA_Fire, ETriggerEvent::Triggered, WeaponComp, &UC_WeaponComponent::Begin_Fire);
+		EnhancedInputComponent->BindAction(IA_Fire, ETriggerEvent::Completed, WeaponComp, &UC_WeaponComponent::End_Fire);
 	}
 
 }

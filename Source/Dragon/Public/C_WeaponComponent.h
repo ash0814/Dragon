@@ -53,6 +53,10 @@ public://Notify Call
 	void End_Equip();
 
 public:
+	void Begin_Fire();
+	void End_Fire();
+
+public:
 	FWeaponTypeChanged OnWeaponTypeChanged;
 
 private:

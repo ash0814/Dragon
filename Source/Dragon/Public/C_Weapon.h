@@ -14,7 +14,7 @@ public:
 	//Animinstance에서 넘겨줄 IK Location
 	FORCEINLINE FVector GetLeftHandLocation() { return LeftHandLocation; }
 
-protected:
+protected: //Equip Value
 	UPROPERTY(EditDefaultsOnly, Category = "Equip")
 	FName HolsterSocketName;			//Weapon Base Attach Socket Name
 
@@ -30,6 +30,23 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Equip")
 	FVector LeftHandLocation;			//LeftHand IK Target Location
 	
+protected:	//Fire Value
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+	TSubclassOf<class AC_Bullet> BulletClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+	float FireInterval = 0.1f;	//Fire Speed
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+	float RecoilRate;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+	float RecoilAngle = 5.0f;
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Hit")
+	float HitDistance = 3000.0f;
+
 private:
 	UPROPERTY(VisibleAnywhere)
 	class USceneComponent* Root;
@@ -48,7 +65,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 
-public:
+public://Equip Func
 	bool CanEquip();
 	void Equip();
 
@@ -58,10 +75,20 @@ public:
 	bool CanUnEquip();
 	void UnEquip();
 
-private:
-	bool bEquipping;
+public://Fire Func
+	bool CanFire();
+	void Begin_Fire();
+	void End_Fire();
+
+	void OnFiring();
+
 
 protected:
 	class ACharacter* OwnerCharacter;
 
+private:
+	bool bEquipping;
+	bool bFiring;
+
+	FTimerHandle FireHandle;
 };
