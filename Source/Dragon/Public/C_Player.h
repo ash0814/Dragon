@@ -61,5 +61,10 @@ public:
 	//점프 입력 처리 함수
 	void InputJump(const struct FInputActionValue& inputValue);
 	void PlayerMove();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputAction* ia_fly;
+	void Fly(const struct FInputActionValue& inputValue);
+
 };
 
