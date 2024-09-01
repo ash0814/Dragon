@@ -11,7 +11,7 @@ AC_Enemy_Boss::AC_Enemy_Boss()
 	if (tempMesh.Succeeded())
 	{
 		GetMesh()->SetSkeletalMesh(tempMesh.Object);
-		GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -90.0f), FRotator(0.0f, -90.0f, 0.0f));
+		GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 88.0f), FRotator(0.0f, -90.0f, 0.0f));
 	}
 
 	//ABP วาด็
@@ -29,10 +29,8 @@ void AC_Enemy_Boss::BeginPlay()
 
 void AC_Enemy_Boss::Tick(float DeltaTime)
 {
-	if (currentHP <= 0)
-	{
-		Die();
-	}
+	FVector newLocation = GetActorLocation() + (GetActorForwardVector() * DeltaTime * MoveSpeed);
+	SetActorLocation(newLocation);
 }
 
 void AC_Enemy_Boss::Die()

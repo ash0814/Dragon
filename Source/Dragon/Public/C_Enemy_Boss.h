@@ -26,4 +26,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void Die() override;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category=EnemyBossData)
+	float MoveSpeed = 1000;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category=EnemyBossData)
+	float currentTime = 0;
 };
