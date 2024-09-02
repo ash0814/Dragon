@@ -66,5 +66,9 @@ public:
 	class UInputAction* ia_fly;
 	void Fly(const struct FInputActionValue& inputValue);
 
+public:
+	bool bIsWeapon;
+	bool bIsRun;
+
 };
 
