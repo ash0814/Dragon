@@ -84,12 +84,20 @@ AC_Player::AC_Player()
 					IA_Run_Player = Run.Object;
 			}
 
-			//Input Gun
+			//Input Equip
 			{
 				static ConstructorHelpers::FObjectFinder<UInputAction> Gun(TEXT("/Script/EnhancedInput.InputAction'/Game/Player/P_Input/IA_Equip.IA_Equip'"));
 
 				if (Gun.Succeeded())
 					IA_Equip = Gun.Object;
+			}
+
+			//Input Fire
+			{
+				static ConstructorHelpers::FObjectFinder<UInputAction> Fire(TEXT("/Script/EnhancedInput.InputAction'/Game/Player/P_Input/IA_Fire.IA_Fire'"));
+
+				if (Fire.Succeeded())
+					IA_Fire = Fire.Object;
 			}
 		}
 	}
@@ -101,14 +109,14 @@ AC_Player::AC_Player()
 		ACharacter::GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 
 		//SpringArm, Camera Setting
-		SpringArm->SetRelativeLocation(FVector(0.0f, 0.0f, 140.0f));
-		SpringArm->TargetArmLength = 200.0f;
-		SpringArm->SocketOffset = FVector(0.0f, 50.0f, 0.0f);
+		SpringArm->SetRelativeLocation(FVector(0.0f, 0.0f, 160.0f));
+		SpringArm->TargetArmLength = 130.0f;
+		SpringArm->SocketOffset = FVector(0.0f, 60.0f, 0.0f);
 		SpringArm->bUsePawnControlRotation = true;
 		SpringArm->bEnableCameraLag = true;
 
-		DefaultSpringArmLength = 200.0f;
-		ZoomedSpringArmLength = 300.0f;
+		DefaultSpringArmLength = 130.0f;
+		ZoomedSpringArmLength = 200.0f;
 
 
 		//Player Movement Setting
@@ -155,12 +163,20 @@ void AC_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	{
 		//Player Moving
 		EnhancedInputComponent->BindAction(IA_Move_Player, ETriggerEvent::Triggered, this, &AC_Player::InputMove);
+
 		//Player Looking
 		EnhancedInputComponent->BindAction(IA_Look_Player, ETriggerEvent::Triggered, this, &AC_Player::InputLook);
+
 		//Player Run
-		EnhancedInputComponent->BindAction(IA_Run_Player, ETriggerEvent::Started, this, &AC_Player::PlayerRun);
+		EnhancedInputComponent->BindAction(IA_Run_Player, ETriggerEvent::Started, this, &AC_Player::OnRun);
+		EnhancedInputComponent->BindAction(IA_Run_Player, ETriggerEvent::Completed, this, &AC_Player::OffRun);
+
 		//Player Weapon
 		EnhancedInputComponent->BindAction(IA_Equip, ETriggerEvent::Started, WeaponComp, &UC_WeaponComponent::SetAK47Mode);
+
+		//Player Fire
+		EnhancedInputComponent->BindAction(IA_Fire, ETriggerEvent::Triggered, WeaponComp, &UC_WeaponComponent::Begin_Fire);
+		EnhancedInputComponent->BindAction(IA_Fire, ETriggerEvent::Completed, WeaponComp, &UC_WeaponComponent::End_Fire);
 	}
 
 }
@@ -208,7 +224,7 @@ void AC_Player::CameraZoom(float alpha)
 		float ArmLength = FMath::Lerp(DefaultSpringArmLength, ZoomedSpringArmLength, alpha);
 		SpringArm->TargetArmLength = ArmLength;
 
-		float RunOffset = FMath::Lerp(50.0f, 0.0f, alpha);
+		float RunOffset = FMath::Lerp(60.0f, 0.0f, alpha);
 		SpringArm->SocketOffset.Y = RunOffset;
 	}
 	else if (bIsRun == false)
@@ -217,7 +233,7 @@ void AC_Player::CameraZoom(float alpha)
 		float ArmLength = FMath::Lerp(DefaultSpringArmLength, ZoomedSpringArmLength, alpha);
 		SpringArm->TargetArmLength = ArmLength;
 
-		float RunOffset = FMath::Lerp(50.0f, 0.0f, alpha);
+		float RunOffset = FMath::Lerp(60.0f, 0.0f, alpha);
 		SpringArm->SocketOffset.Y = RunOffset;
 	}
 }
@@ -233,25 +249,31 @@ void AC_Player::SetTimeline()
 		CameraZoom(TimelineCom->GetPlaybackPosition());
 	}
 }
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 //Local Function
-void AC_Player::PlayerRun()
+void AC_Player::OnRun()
 {
-
 	if (GetVelocity().Size() > 0.0f)
 	{
-		bIsRun = !bIsRun;
+		bIsRun = true;
 
 		if (bIsRun == true)
 		{
 			TimelineCom->Play();
 			GetCharacterMovement()->MaxWalkSpeed = 600.0f;
 		}
-		else if (bIsRun == false)
-		{
-			TimelineCom->Reverse();
-			GetCharacterMovement()->MaxWalkSpeed = 250.0f;
-		}
+	}
+}
+
+void AC_Player::OffRun()
+{
+	bIsRun = false;
+
+	if (bIsRun == false)
+	{
+		TimelineCom->Reverse();
+		GetCharacterMovement()->MaxWalkSpeed = 250.0f;
 	}
 }

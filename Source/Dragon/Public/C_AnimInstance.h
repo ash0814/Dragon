@@ -39,6 +39,12 @@ protected: //Player Data
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Player Data")
 	bool bPlayerIsWeapon;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Player Data")
+	bool bHandIK;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Player Data")
+	FVector LeftHandLocation;
+
 protected: //Set OrientationAngle
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Orientation Angle")
 	float F_OrientationAngle;
@@ -77,6 +83,8 @@ private:
 	void ShouldMove();
 	//Orientation 설정함수
 	void SetOrientationAngle();
+	//Offset을 위한 Pitch계산 함수
+	void SetDirectionPitch();
 
 private:
 	UFUNCTION()
@@ -91,6 +99,7 @@ private: //class Value
 	class AC_Player* OwnerCharacter;
 	class UCharacterMovementComponent* MovementCom;
 	class UC_WeaponComponent* Weapon;
+	FRotator PrevRotation;
 
 
 };

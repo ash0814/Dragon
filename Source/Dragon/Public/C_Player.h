@@ -53,7 +53,10 @@ public: //INPUT COMPONENT
 	class UInputAction* IA_Run_Player; //Run
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	class UInputAction* IA_Equip; //Run
+	class UInputAction* IA_Equip; //Equip
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	class UInputAction* IA_Fire; //Bullet Fire
 	/////////////////////////////////////////////////////////////////
 
 private:
@@ -83,7 +86,8 @@ private:
 	void SetTimeline();
 
 protected://Player Move Func
-	void PlayerRun();
+	void OnRun();
+	void OffRun();
 
 public://Local Value
 	//현재 Run인지 아닌지 check
