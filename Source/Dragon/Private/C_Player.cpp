@@ -8,6 +8,9 @@
 	#include "EnhancedInputComponent.h"
 	#include "InputActionValue.h"
     #include "GameFramework/CharacterMovementComponent.h"
+	#include "GameFramework/Character.h"
+
+
 
 
 	// Sets default values
@@ -58,7 +61,7 @@
 	void AC_Player::Tick(float DeltaTime)
 	{
 		Super::Tick(DeltaTime);
-
+		/*
 		// 방향 벡터와 속도, DeltaTime을 이용하여 이동 벡터 계산 (X, Y, Z 모두 포함)
 		FVector Movement = direction * walkSpeed * DeltaTime;
 
@@ -75,7 +78,9 @@
 		UE_LOG(LogTemp, Warning, TEXT("Movement -> X: %f, Y: %f, Z: %f"), Movement.X, Movement.Y, Movement.Z);
 
 		// 매 프레임마다 direction 초기화
-		direction = FVector::ZeroVector;
+		direction = FVector::ZeroVector;*/
+		PlayerMove();
+
 	}
 
 
@@ -151,6 +156,19 @@
 		// Z축 이동 속도를 고려하여 값 설정
 		direction.Z = flyValue;
 
+		// 입력 값이 양수이면 중력을 비활성화하고 비행 모드로 전환
+		if (flyValue > 0.0f)
+		{
+			GetCharacterMovement()->SetMovementMode(MOVE_Flying);
+			GetCharacterMovement()->GravityScale = 0.0f;
+		}
+		// 입력 값이 음수이면 중력을 활성화하고 걷기 모드로 전환
+		else if (flyValue < 0.0f)
+		{
+			GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+			GetCharacterMovement()->GravityScale = 1.0f;
+		}
+
 		// 입력 값과 계산된 Z축 값 로그 출력
-		//UE_LOG(LogTemp, Warning, TEXT("Input Value: %f, Calculated Z: %f"), flyValue, direction.Z);
+		UE_LOG(LogTemp, Warning, TEXT("Input Value: %f, Calculated Z: %f"), flyValue, direction.Z);
 	}
