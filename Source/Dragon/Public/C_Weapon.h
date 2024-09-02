@@ -35,6 +35,15 @@ protected:	//Fire Value
 	TSubclassOf<class AC_Bullet> BulletClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+	class UParticleSystem* FlashParticle;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+	class UParticleSystem* EjectParticle;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+	class USoundWave* FireSound;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
 	float FireInterval = 0.1f;	//Fire Speed
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
@@ -46,6 +55,12 @@ protected:	//Fire Value
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Hit")
 	float HitDistance = 3000.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Hit")
+	class UMaterialInstanceConstant* HitDecal;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Hit")
+	class UParticleSystem* HitParticle;
 
 private:
 	UPROPERTY(VisibleAnywhere)

@@ -12,6 +12,7 @@ enum class EWeaponType : uint8
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FWeaponTypeChanged, EWeaponType, InPrevType, EWeaponType, InNewType);
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE(FWeaponInputDelegate);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class DRAGON_API UC_WeaponComponent : public UActorComponent
@@ -27,6 +28,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Weapon")
 	TArray<TSubclassOf<class AC_Weapon>> WeaponClasses;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<class UUserWidget> CrossHairClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
+	class UUserWidget* CrossHair;
 
 public:	
 	UC_WeaponComponent();
@@ -53,6 +59,22 @@ public://Notify Call
 	void End_Equip();
 
 public:
+	void ShowCrossHair();
+	void HideCrossHair();
+
+private:
+	void UpdateCrossHair();
+
+public://Fire
+	//UPROPERTY(BlueprintAssignable, Category = "Weapon Input")
+	//FWeaponInputDelegate OnBegin_Fire;
+
+	//UPROPERTY(BlueprintAssignable, Category = "Weapon Input")
+	//FWeaponInputDelegate OnEnd_Fire;
+
+	//UPROPERTY(BlueprintAssignable, Category = "Weapon Input")
+	//FWeaponInputDelegate OnSetMode;
+
 	void Begin_Fire();
 	void End_Fire();
 

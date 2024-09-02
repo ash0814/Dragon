@@ -1,7 +1,6 @@
-	// Fill out your copyright notice in the Description page of Project Settings.
-
-
 	#include "C_Player.h"
+	#include "C_WeaponComponent.h"
+
 	#include <GameFramework/SpringArmComponent.h>
 	#include <Camera/CameraComponent.h>
 	#include "EnhancedInputSubsystems.h"
@@ -10,14 +9,11 @@
     #include "GameFramework/CharacterMovementComponent.h"
 	#include "GameFramework/Character.h"
 
-
-
-
-	// Sets default values
 	AC_Player::AC_Player()
 	{
-		// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 		PrimaryActorTick.bCanEverTick = true;
+
+		WeaponComp = CreateDefaultSubobject<UC_WeaponComponent>(TEXT("WeaponComp"));
 
 		//스켈레탈메시 데이터 불러오기
 		ConstructorHelpers::FObjectFinder<USkeletalMesh> TempMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/Mannequin_UE4/Meshes/SK_Mannequin.SK_Mannequin'"));
@@ -31,7 +27,9 @@
 		springArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
 		springArmComp->SetupAttachment(RootComponent);
 		springArmComp->SetRelativeRotation(FRotator(0, 70, 90));
-		springArmComp->TargetArmLength = 400;
+		springArmComp->TargetArmLength = 150;
+		springArmComp->SetRelativeLocation(FVector(0.0f, 0.0f, 70.0f));
+		springArmComp->SocketOffset = FVector(0.0f, 60.0f, 0.0f);
 		springArmComp->bUsePawnControlRotation = true;
 
 		//camera 컴포너트 붙이기
@@ -98,6 +96,12 @@
 			PlayerInput->BindAction(ia_jump, ETriggerEvent::Started, this, &AC_Player::InputJump);
 			PlayerInput->BindAction(ia_fly, ETriggerEvent::Triggered, this, &AC_Player::Fly);
 
+			PlayerInput->BindAction(ia_equip, ETriggerEvent::Started, WeaponComp, &UC_WeaponComponent::SetAK47Mode);
+
+			PlayerInput->BindAction(ia_fire, ETriggerEvent::Triggered, WeaponComp, &UC_WeaponComponent::Begin_Fire);
+			PlayerInput->BindAction(ia_fire, ETriggerEvent::Completed, WeaponComp, &UC_WeaponComponent::End_Fire);
+
+
 		}
 	}
 
@@ -141,7 +145,7 @@
 		AddMovementInput(TransformedDirection);
 
 		// 이동 벡터를 로그로 출력
-		UE_LOG(LogTemp, Warning, TEXT("TransformedDirection -> X: %f, Y: %f, Z: %f"), TransformedDirection.X, TransformedDirection.Y, TransformedDirection.Z);
+		//UE_LOG(LogTemp, Warning, TEXT("TransformedDirection -> X: %f, Y: %f, Z: %f"), TransformedDirection.X, TransformedDirection.Y, TransformedDirection.Z);
 
 		// 매 프레임마다 direction 초기화
 		direction = FVector::ZeroVector;
@@ -170,5 +174,21 @@
 		}
 
 		// 입력 값과 계산된 Z축 값 로그 출력
-		UE_LOG(LogTemp, Warning, TEXT("Input Value: %f, Calculated Z: %f"), flyValue, direction.Z);
+		//UE_LOG(LogTemp, Warning, TEXT("Input Value: %f, Calculated Z: %f"), flyValue, direction.Z);
 	}
+
+	//void AC_Player::PlayerBegin_Fire()
+	//{
+	//	if (WeaponComp)
+	//	{
+	//		WeaponComp->OnBegin_Fire.Broadcast();
+	//	}
+	//}
+
+	//void AC_Player::PlayerEnd_Fire()
+	//{
+	//	if (WeaponComp)
+	//	{
+	//		WeaponComp->OnEnd_Fire.Broadcast();
+	//	}
+	//}

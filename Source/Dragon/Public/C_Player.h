@@ -12,18 +12,14 @@ class DRAGON_API AC_Player : public ACharacter
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	AC_Player();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 public:
 	// 헤더 파일 (TestPlayer.h)
@@ -41,6 +37,10 @@ public:
 	class UInputAction* ia_Lookup;
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* ia_Turn;
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputAction* ia_equip;
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputAction* ia_fire;
 
 	//좌우 입력 처리
 	void Turn(const struct FInputActionValue& inputValue);
@@ -65,6 +65,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* ia_fly;
 	void Fly(const struct FInputActionValue& inputValue);
+
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponComp")
+	class UC_WeaponComponent* WeaponComp;
+
+
+	//void PlayerModeChange();
+	//void PlayerBegin_Fire();
+	//void PlayerEnd_Fire();
 
 public:
 	bool bIsWeapon;
