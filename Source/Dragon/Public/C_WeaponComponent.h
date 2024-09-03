@@ -8,7 +8,7 @@
 UENUM(BlueprintType)
 enum class EWeaponType : uint8
 {
-	AK47, MAX
+	AK47, MAX,
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FWeaponTypeChanged, EWeaponType, InPrevType, EWeaponType, InNewType);
@@ -27,6 +27,21 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Weapon")
 	TArray<TSubclassOf<class AC_Weapon>> WeaponClasses;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<class UUserWidget> CrossHairClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
+	class UUserWidget* CrossHair;
+
+public:
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputAction* IA_Equip;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputAction* IA_Fire;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputAction* IA_Reload;
 
 public:	
 	UC_WeaponComponent();
@@ -37,11 +52,19 @@ protected:
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	void SetupInputBinding(class UEnhancedInputComponent* PlayerInput);
+
+
+protected:
+	virtual void InitializeComponent() override;
+
 private:
 	AC_Weapon* GetCurrentWeapon();
 
 public://Set Current Mode
 	void SetUnarmedMode();
+
+	UFUNCTION()
 	void SetAK47Mode();
 
 private://Set Mode & Change Mode
@@ -51,6 +74,25 @@ private://Set Mode & Change Mode
 public://Notify Call
 	void Begin_Equip();
 	void End_Equip();
+
+public:
+	void ShowCrossHair();
+	void HideCrossHair();
+
+private:
+	void UpdateCrossHair();
+
+public://Fire
+	void Begin_Fire();
+	void End_Fire();
+
+public://Reload
+	void Reload();
+	void Eject();
+
+
+public:
+	FVector GetLefrHandLocation();
 
 public:
 	FWeaponTypeChanged OnWeaponTypeChanged;

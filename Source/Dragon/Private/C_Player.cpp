@@ -1,257 +1,160 @@
-#include "C_Player.h"
-#include "CHelpers.h"
+	// Fill out your copyright notice in the Description page of Project Settings.
 
-#include "C_AnimInstance.h"
-#include "C_WeaponComponent.h"
 
-#include "Camera/CameraComponent.h"
-#include "GameFramework/SpringArmComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/Controller.h"
+	#include "C_Player.h"
+	#include <GameFramework/SpringArmComponent.h>
+	#include <Camera/CameraComponent.h>
+	#include "EnhancedInputSubsystems.h"
+	#include "EnhancedInputComponent.h"
+	#include "InputActionValue.h"
+    #include "GameFramework/CharacterMovementComponent.h"
+	#include "GameFramework/Character.h"
 
-#include "Components/CapsuleComponent.h"
-#include "Components/SkeletalMeshComponent.h"
-
-#include "Components/InputComponent.h"
-#include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
-
-AC_Player::AC_Player()
-{
-	//Create Components
+	// Sets default values
+	AC_Player::AC_Player()
 	{
-		SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SprintArm"));
-		Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-		TimelineCom = CreateDefaultSubobject<UTimelineComponent>(TEXT("CameraTimeline"));
-		WeaponComp = CreateDefaultSubobject<UC_WeaponComponent>(TEXT("WeaponComponent"));
+		// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+		PrimaryActorTick.bCanEverTick = true;
+
+		//스켈레탈메시 데이터 불러오기
+		ConstructorHelpers::FObjectFinder<USkeletalMesh> TempMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/SciFi_Space_Soldier/Meshes/SK_SciFi_Space_Soldier.SK_SciFi_Space_Soldier'"));
+		if (TempMesh.Succeeded())
+		{
+			GetMesh()->SetSkeletalMesh(TempMesh.Object);
+			//메쉬 컴포너트의 위치를 설정
+			GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -90), FRotator(0, -90, 0));
+		}
+		//SpringArm 컴포너트 붙이기
+		springArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
+		springArmComp->SetupAttachment(RootComponent);
+		springArmComp->SetRelativeRotation(FRotator(0, 70, 90));
+		springArmComp->TargetArmLength = 400;
+		springArmComp->bUsePawnControlRotation = true;
+
+		//camera 컴포너트 붙이기
+		tpsCamComp = CreateDefaultSubobject<UCameraComponent>(TEXT("TpsCamComp"));
+		tpsCamComp->SetupAttachment(springArmComp);
+		tpsCamComp->bUsePawnControlRotation = false;
+
+		bUseControllerRotationYaw = true;
 	}
 
-	//Create RootComponents
+	// Called when the game starts or when spawned
+	void AC_Player::BeginPlay()
 	{
-		SpringArm->SetupAttachment(ACharacter::GetMesh());
-		Camera->SetupAttachment(SpringArm);
-	}
-
-	//Set Default Class & Object Setting
-	{
-		//Set Skeletal Mesh
+		
+		Super::BeginPlay();
+		auto pc = Cast<APlayerController>(Controller);
+		if (pc)
 		{
-			static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/Mannequin_UE4/Meshes/SK_Mannequin.SK_Mannequin'"));
-
-			if (SkMesh.Succeeded())
-				ACharacter::GetMesh()->SetSkeletalMesh(SkMesh.Object);
-		}
-
-		//Set Animinstance
-		{
-			static ConstructorHelpers::FClassFinder<UAnimInstance> animInstance(TEXT("/Script/Engine.AnimBlueprint'/Game/Player/P_BulePrint/Animation/ABP_C_Player.ABP_C_Player_C'"));
-
-			if (animInstance.Succeeded())
-				ACharacter::GetMesh()->SetAnimClass(animInstance.Class);
-		}
-
-		//Set Cureve
-		{
-			static ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(TEXT("/Script/Engine.CurveFloat'/Game/Player/P_CameraShake/C_Camera.C_Camera'"));
-
-			if (Curve.Succeeded())
-				ZoomCurve = Curve.Object;
-		}
-
-		//Set InputAction
-		{
-			//Input Move
+			auto subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(pc->GetLocalPlayer());
+			if (subsystem)
 			{
-				static ConstructorHelpers::FObjectFinder<UInputAction> Move(TEXT("/Script/EnhancedInput.InputAction'/Game/Player/P_Input/IA_Move.IA_Move'"));
-
-				if (Move.Succeeded())
-					IA_Move_Player = Move.Object;
-			}
-
-			//Input Look
-			{
-				static ConstructorHelpers::FObjectFinder<UInputAction> Look(TEXT("/Script/EnhancedInput.InputAction'/Game/Player/P_Input/IA_Look.IA_Look'"));
-
-				if (Look.Succeeded())
-					IA_Look_Player = Look.Object;
-			}
-
-			//Input Run
-			{
-				static ConstructorHelpers::FObjectFinder<UInputAction> Run(TEXT("/Script/EnhancedInput.InputAction'/Game/Player/P_Input/IA_Run.IA_Run'"));
-
-				if (Run.Succeeded())
-					IA_Run_Player = Run.Object;
-			}
-
-			//Input Gun
-			{
-				static ConstructorHelpers::FObjectFinder<UInputAction> Gun(TEXT("/Script/EnhancedInput.InputAction'/Game/Player/P_Input/IA_Equip.IA_Equip'"));
-
-				if (Gun.Succeeded())
-					IA_Equip = Gun.Object;
+				subsystem->AddMappingContext(imc_TPS, 0);
 			}
 		}
 	}
 
-	//Player Setting
+	void AC_Player::Tick(float DeltaTime)
 	{
-		//Mesh Location, Rotaion Setting
-		ACharacter::GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
-		ACharacter::GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
+		Super::Tick(DeltaTime);
 
-		//SpringArm, Camera Setting
-		SpringArm->SetRelativeLocation(FVector(0.0f, 0.0f, 140.0f));
-		SpringArm->TargetArmLength = 200.0f;
-		SpringArm->SocketOffset = FVector(0.0f, 50.0f, 0.0f);
-		SpringArm->bUsePawnControlRotation = true;
-		SpringArm->bEnableCameraLag = true;
+		PlayerMove();
 
-		DefaultSpringArmLength = 200.0f;
-		ZoomedSpringArmLength = 300.0f;
-
-
-		//Player Movement Setting
-		GetCharacterMovement()->MaxWalkSpeed = 300.0f;
-		bIsRun = false;
 	}
-}
 
-void AC_Player::BeginPlay()
-{
-	Super::BeginPlay();
 
-	//Player Camera View Up/Down Limit
-	GetController<APlayerController>()->PlayerCameraManager->ViewPitchMin = PitchRange.X;
-	GetController<APlayerController>()->PlayerCameraManager->ViewPitchMax = PitchRange.Y;
-
-	SetTimeline();
-}
-
-void AC_Player::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	TimelineCom->TickComponent(DeltaTime, ELevelTick::LEVELTICK_TimeOnly, NULL);
-}
-
-//Player Input Function
-void AC_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	//Set InputMappingContext
-	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	// Called to bind functionality to input
+	void AC_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+		auto PlayerInput = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
+		if (PlayerInput)
 		{
-			Subsystem->AddMappingContext(IMC_Player, 0);
+			PlayerInput->BindAction(ia_Turn, ETriggerEvent::Triggered, this, &AC_Player::Turn);
+			PlayerInput->BindAction(ia_Lookup, ETriggerEvent::Triggered, this, &AC_Player::LookUp);
+			PlayerInput->BindAction(ia_Move, ETriggerEvent::Triggered, this, &AC_Player::Move);
+			PlayerInput->BindAction(ia_jump, ETriggerEvent::Started, this, &AC_Player::InputJump);
+			PlayerInput->BindAction(ia_fly, ETriggerEvent::Triggered, this, &AC_Player::Fly);
+
 		}
 	}
 
-	//Set InputAction binding
-
-	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	void AC_Player::Turn(const FInputActionValue& inputValue)
 	{
-		//Player Moving
-		EnhancedInputComponent->BindAction(IA_Move_Player, ETriggerEvent::Triggered, this, &AC_Player::InputMove);
-		//Player Looking
-		EnhancedInputComponent->BindAction(IA_Look_Player, ETriggerEvent::Triggered, this, &AC_Player::InputLook);
-		//Player Run
-		EnhancedInputComponent->BindAction(IA_Run_Player, ETriggerEvent::Started, this, &AC_Player::PlayerRun);
-		//Player Weapon
-		EnhancedInputComponent->BindAction(IA_Equip, ETriggerEvent::Started, WeaponComp, &UC_WeaponComponent::SetAK47Mode);
+
+		float value = inputValue.Get<float>();
+		AddControllerYawInput(value);
 	}
 
-}
-
-void AC_Player::InputMove(const FInputActionValue& values)
-{
-	//IA에서 입력값을 Axis2D로 받아와서 Vector2D로 받음
-	FVector2D MovementVector = values.Get<FVector2D>();
-
-	if (Controller != nullptr)
+	void AC_Player::LookUp(const FInputActionValue& inputValue)
 	{
-		//전방 방향 구하기
-		const FRotator rotator = FRotator(0, GetControlRotation().Yaw, 0);
-
-		//전방 Vector 구하기
-		const FVector ForwardDirection = FQuat(rotator).GetForwardVector();
-
-		//좌우 Vector 구하기
-		const FVector RightDirection = FQuat(rotator).GetRightVector();
-
-		//구한 Vector를 기반으로 Add Movement
-		AddMovementInput(ForwardDirection, MovementVector.Y);
-		AddMovementInput(RightDirection, MovementVector.X);
+		float value = inputValue.Get<float>();
+		AddControllerPitchInput(value);
 	}
-}
-
-void AC_Player::InputLook(const FInputActionValue& values)
-{
-	FVector2D LookAxisVector = values.Get<FVector2D>();
-
-	if (Controller != nullptr)
+	void AC_Player::Move(const FInputActionValue& inputValue)
 	{
-		//Player Yaw, Pitch Input
-		AddControllerYawInput(LookAxisVector.X);
-		AddControllerPitchInput(LookAxisVector.Y);
+		// 3D 벡터로 변경하여 X, Y, Z 축 모두 처리
+		FVector value = inputValue.Get<FVector>();
+
+		// X, Y 축 방향 처리
+		direction.X = value.X;
+		direction.Y = value.Y;
+		// Z 축 방향 (Fly 입력에 따른 위/아래 이동)
+		direction.Z = value.Z; // Z 값은 Fly에서 설정될 것
 	}
-}
-//////////////////////////////////////////////////////////////////////////////////////////
-
-//Camera Timeline Function
-void AC_Player::CameraZoom(float alpha)
-{
-	if (bIsRun == true)
+	void AC_Player::InputJump(const FInputActionValue& inputValue)
 	{
-		float ArmLength = FMath::Lerp(DefaultSpringArmLength, ZoomedSpringArmLength, alpha);
-		SpringArm->TargetArmLength = ArmLength;
 
-		float RunOffset = FMath::Lerp(50.0f, 0.0f, alpha);
-		SpringArm->SocketOffset.Y = RunOffset;
+		Jump();
 	}
-	else if (bIsRun == false)
+	void AC_Player::PlayerMove()
 	{
+		// X, Y 축 이동 처리 (회전값에 따라 방향 변환)
+		FVector XYDirection = FVector(direction.X, direction.Y, 0.0f);
+		FVector transformedXYDirection = FTransform(GetControlRotation()).TransformVector(XYDirection);
 
-		float ArmLength = FMath::Lerp(DefaultSpringArmLength, ZoomedSpringArmLength, alpha);
-		SpringArm->TargetArmLength = ArmLength;
+		// Z 축 이동은 별도로 처리하여 회전 변환 없이 적용
+		FVector ZDirection = FVector(0.0f, 0.0f, direction.Z);
 
-		float RunOffset = FMath::Lerp(50.0f, 0.0f, alpha);
-		SpringArm->SocketOffset.Y = RunOffset;
+		// 최종 이동 벡터 계산
+		FVector FinalMovement = transformedXYDirection + ZDirection;
+
+		// 이동 처리
+		AddMovementInput(FinalMovement);
+
+		// 로그로 이동 벡터 출력 (디버깅용)
+		UE_LOG(LogTemp, Warning, TEXT("FinalMovement -> X: %f, Y: %f, Z: %f"), FinalMovement.X, FinalMovement.Y, FinalMovement.Z);
+
+		// 매 프레임마다 direction 초기화
+		direction = FVector::ZeroVector;
 	}
-}
 
-void AC_Player::SetTimeline()
-{
-	if (ZoomCurve)
+	void AC_Player::Fly(const FInputActionValue& inputValue)
 	{
-		CameraZoomHandler.BindUFunction(this, FName("CameraZoom"));
-		TimelineCom->AddInterpFloat(ZoomCurve, CameraZoomHandler);
-		TimelineCom->SetLooping(false);
+		// Z축 방향 이동 값을 설정 (양수: 위로, 음수: 아래로)
+		float flyValue = inputValue.Get<float>();
 
-		CameraZoom(TimelineCom->GetPlaybackPosition());
-	}
-}
-///////////////////////////////////////////////////////////////////////////////////////////
+		// Z축 이동 속도를 고려하여 값 설정
+		direction.Z = flyValue * walkSpeed;
 
-//Local Function
-void AC_Player::PlayerRun()
-{
-
-	if (GetVelocity().Size() > 0.0f)
-	{
-		bIsRun = !bIsRun;
-
-		if (bIsRun == true)
+		// Shift 키 등으로 비행할 때 비행 모드로 전환하고 중력 비활성화
+		if (flyValue > 0.0f)
 		{
-			TimelineCom->Play();
-			GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+			GetCharacterMovement()->SetMovementMode(MOVE_Flying);
+			GetCharacterMovement()->GravityScale = 0.0f;
+			GetCharacterMovement()->BrakingDecelerationFlying = 2048.0f; // 비행 시 감속 속도
 		}
-		else if (bIsRun == false)
+		// Ctrl 키로 하강할 때 중력 활성화 및 걷기 모드로 전환
+		else if (flyValue < 0.0f)
 		{
-			TimelineCom->Reverse();
-			GetCharacterMovement()->MaxWalkSpeed = 250.0f;
+			GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+			GetCharacterMovement()->GravityScale = 1.0f;
+			GetCharacterMovement()->BrakingDecelerationWalking = 1024.0f; // 걷기 모드에서의 감속 속도
 		}
+
+		// 로그로 입력 값과 Z축 이동 값 출력
+		UE_LOG(LogTemp, Warning, TEXT("Fly -> Input Value: %f, Calculated Z: %f"), flyValue, direction.Z);
 	}
-}
+

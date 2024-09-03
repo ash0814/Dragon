@@ -4,7 +4,7 @@
 #include "Engine.h"
 
 //x 가 true면 return
-#define CheckTreu(x) { if(x == true) return; }
+#define CheckTrue(x) { if(x == true) return; }
 //x가 true면 y를 return
 #define CheckTrueResult(x, y) { if(x == true) return y; }
 
