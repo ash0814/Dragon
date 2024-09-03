@@ -30,6 +30,25 @@ protected: //Equip Value
 	UPROPERTY(EditDefaultsOnly, Category = "Equip")
 	FVector LeftHandLocation;			//LeftHand IK Target Location
 	
+protected://Reload
+	UPROPERTY(EditDefaultsOnly, Category = "Reload")
+	class UAnimMontage* ReloadMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Reload")
+	float ReloadMontage_PlayRate;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Reload")
+	int32 DefaultBulletCount;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Reload")
+	TSubclassOf<class AC_Magazine> MagazineClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Reload")
+	FName MagazineBoneName;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Reload")
+	FName MagazineSocketName;
+
 protected:	//Fire Value
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
 	TSubclassOf<class AC_Bullet> BulletClass;
@@ -52,17 +71,7 @@ protected:	//Fire Value
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
 	float RecoilAngle;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Fire")
-	int32 BulletCount;
-
-protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Reload")
-	class UAnimMontage* ReloadMontage;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Reload")
-	float ReloadMontage_PlayRate;
-
-protected:
+protected: //Hit
 	UPROPERTY(EditDefaultsOnly, Category = "Hit")
 	float HitDistance = 3000.0f;
 
@@ -108,7 +117,13 @@ public://Fire Func
 	void OnFiring();
 
 public://Reload
+	bool CanReload();
 	void Reload();
+
+	void Eject_Magazine();
+	void Spawn_Magazine();
+	void Load_Magazine();
+	void End_Reload();
 
 protected:
 	class ACharacter* OwnerCharacter;
@@ -117,6 +132,9 @@ private:
 	bool bEquipping;
 	bool bFiring;
 	bool bReloading;
+
+	int32 CurrentBulletCount;
+	class AC_Magazine* Magazine;
 
 	FTimerHandle FireHandle;
 };

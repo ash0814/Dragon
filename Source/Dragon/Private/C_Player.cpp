@@ -140,9 +140,6 @@
 		// 최종 이동 처리
 		AddMovementInput(TransformedDirection);
 
-		// 이동 벡터를 로그로 출력
-		//UE_LOG(LogTemp, Warning, TEXT("TransformedDirection -> X: %f, Y: %f, Z: %f"), TransformedDirection.X, TransformedDirection.Y, TransformedDirection.Z);
-
 		// 매 프레임마다 direction 초기화
 		direction = FVector::ZeroVector;
 	}
@@ -168,7 +165,4 @@
 			GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 			GetCharacterMovement()->GravityScale = 1.0f;
 		}
-
-		// 입력 값과 계산된 Z축 값 로그 출력
-		//UE_LOG(LogTemp, Warning, TEXT("Input Value: %f, Calculated Z: %f"), flyValue, direction.Z);
 	}

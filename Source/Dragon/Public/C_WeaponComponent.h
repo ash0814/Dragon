@@ -27,7 +27,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Weapon")
 	TArray<TSubclassOf<class AC_Weapon>> WeaponClasses;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "UI")
 	TSubclassOf<class UUserWidget> CrossHairClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
@@ -88,8 +88,10 @@ public://Fire
 
 public://Reload
 	void Reload();
-	void Eject();
-
+	void Eject_Magazine();
+	void Spawn_Magazine();
+	void Load_Magazine();
+	void End_Reload();
 
 public:
 	FVector GetLefrHandLocation();
