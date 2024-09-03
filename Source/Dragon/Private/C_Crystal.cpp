@@ -4,6 +4,7 @@
 #include "C_Crystal.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -16,10 +17,10 @@ AC_Crystal::AC_Crystal()
 	TotalHP = 100;
 	CurrentHP = 100;
 
-	sphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("My Sphere Comp"));
+	sphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	SetRootComponent(sphereComp);
 
-	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("My Static Mesh"));
+	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	MeshComponent->SetupAttachment(sphereComp);
 
 	float sphereSize = 50.0f;

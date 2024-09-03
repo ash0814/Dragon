@@ -35,6 +35,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Crystal")
 	class UStaticMeshComponent* MeshComponent;
 
+	UPROPERTY(EditAnywhere, Category = "HealthBar")
+	class UUserWidget* HealthBarComponent;
+
 	void Die();
 
 	virtual float TakeDamage(float damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
