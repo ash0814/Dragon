@@ -91,8 +91,6 @@ void UC_AnimInstance::DirectionCalculation()
 	{
 		MovementType = EMovementType::Left;
 	}
-
-
 }
 
 void UC_AnimInstance::ShouldMove()

@@ -19,6 +19,10 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UProjectileMovementComponent* Projectile;
 
+protected:
+	UPROPERTY(VisibleAnywhere, Category = "Damage")
+	float BulletDamage;
+
 public:	
 	AC_Bullet();
 

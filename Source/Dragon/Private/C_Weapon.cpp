@@ -4,9 +4,12 @@
 #include "C_WeaponComponent.h"
 #include "C_Bullet.h"
 
+#include "Components/DecalComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Particles/ParticleSystem.h"
+#include "Materials/MaterialInstanceConstant.h"
 
 
 AC_Weapon::AC_Weapon()
@@ -20,9 +23,36 @@ AC_Weapon::AC_Weapon()
 	
 	//BulletClass DefaultSetting
 	{
+		//Bullet Class
 		static ConstructorHelpers::FClassFinder<AC_Bullet> bullet(TEXT("/Script/Engine.Blueprint'/Game/Player/P_BulePrint/BP_C_Bullet.BP_C_Bullet_C'"));
 		if (bullet.Succeeded())
 			BulletClass = bullet.Class;
+
+		//HitDecal
+		static ConstructorHelpers::FObjectFinder<UMaterialInstanceConstant> Decal(TEXT("/Script/Engine.MaterialInstanceConstant'/Game/Project/Asset/Materials/Texture/Bullet_Hole_Mat_Inst.Bullet_Hole_Mat_Inst'"));
+		if (Decal.Succeeded())
+			HitDecal = Decal.Object;
+
+		//Muzzle 
+		static ConstructorHelpers::FObjectFinder<UParticleSystem> Muzzle(TEXT("/Script/Engine.ParticleSystem'/Game/Project/Asset/Effects/MilitaryWeapSilver/FX/P_AssaultRifle_MuzzleFlash.P_AssaultRifle_MuzzleFlash'"));
+		if (Muzzle.Succeeded())
+			FlashParticle = Muzzle.Object;
+
+		//Fire Sound
+		static ConstructorHelpers::FObjectFinder<USoundWave> Sound(TEXT("/Script/Engine.SoundWave'/Game/Project/Asset/Gun_Explosion_Sounds/Gun_01/wav/Gun_1_1.Gun_1_1'"));
+		if (Sound.Succeeded())
+			FireSound = Sound.Object;
+		
+		//HitParticle
+		static ConstructorHelpers::FObjectFinder<UParticleSystem> Hit(TEXT("/Script/Engine.ParticleSystem'/Game/Project/Asset/Effects/BulletEffects/P_Impact_Default.P_Impact_Default'"));
+		if (Hit.Succeeded())
+			HitParticle = Hit.Object;
+		
+		//Eject
+		static ConstructorHelpers::FObjectFinder<UParticleSystem> Eject(TEXT("/Script/Engine.ParticleSystem'/Game/Project/Asset/Effects/BulletEffects/P_Eject_bullet.P_Eject_bullet'"));
+		if (Eject.Succeeded())
+			EjectParticle = Eject.Object;
+	
 	}
 
 }
@@ -106,12 +136,14 @@ bool AC_Weapon::CanFire()
 
 void AC_Weapon::Begin_Fire()
 {
+
 	bFiring = true;
 
 	//FireInterval 마다 OnFiring() 호출
 	GetWorld()->GetTimerManager().SetTimer(FireHandle, this, &AC_Weapon::OnFiring, FireInterval, true, 0);
 
 	OnFiring();
+
 }
 
 void AC_Weapon::End_Fire()
@@ -135,9 +167,6 @@ void AC_Weapon::OnFiring()
 
 	//LineTrace Start & End Locaiton
 	FVector start = transform.GetLocation() + direction;
-
-	direction = UKismetMathLibrary::RandomUnitVectorInConeInDegrees(direction, RecoilAngle);
-
 	FVector end = transform.GetLocation() + direction * HitDistance;
 	///////////////////////////////////////////////////
 
@@ -146,23 +175,77 @@ void AC_Weapon::OnFiring()
 	FHitResult hitResult;
 	UKismetSystemLibrary::LineTraceSingle(GetWorld(), start, end, ETraceTypeQuery::TraceTypeQuery1, false, ignores, EDrawDebugTrace::None, hitResult, true);
 
-	//Recoil
-	OwnerCharacter->AddControllerPitchInput(-RecoilRate * UKismetMathLibrary::RandomFloatInRange(0.5f, 1.2f));
-	/////////////////////////////////////////////////////
-
-	if (!!BulletClass)
+	if (BulletCount > 0)
 	{
-		FVector location = Mesh->GetSocketLocation("Muzzle_Bullet");
+		//Recoil
+		OwnerCharacter->AddControllerPitchInput(-RecoilRate * UKismetMathLibrary::RandomFloatInRange(0.5f, 1.2f));
+		/////////////////////////////////////////////////////
 
-		FActorSpawnParameters params;
-		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		//Weapon Spread
+		direction = UKismetMathLibrary::RandomUnitVectorInConeInDegrees(direction, RecoilAngle);
+		/////////////////////////////////////////////////////
 
-		AC_Bullet* bullet = GetWorld()->SpawnActor<AC_Bullet>(BulletClass, location, direction.Rotation(), params);
-
-		if (!!bullet)
+		if (hitResult.bBlockingHit)
 		{
-			bullet->Shoot(direction);
+			if (!!HitDecal)
+			{
+				FRotator rotator = hitResult.ImpactNormal.Rotation();
+
+				UDecalComponent* decal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), HitDecal, FVector(5), hitResult.Location, rotator, 10);
+				decal->SetFadeScreenSize(0);
+			}
+
+			if (!!HitParticle)
+			{
+				FRotator rotator = UKismetMathLibrary::FindLookAtRotation(hitResult.Location, hitResult.TraceStart);
+
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticle, hitResult.Location, rotator);
+			}
+		}
+
+		if (!!FlashParticle)
+		{
+			UGameplayStatics::SpawnEmitterAttached(FlashParticle, Mesh, "Muzzle", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset);
+		}
+
+		if (!!EjectParticle)
+		{
+			UGameplayStatics::SpawnEmitterAttached(EjectParticle, Mesh, "Eject", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset);
+		}
+
+		FVector MuzzleLocation = Mesh->GetSocketLocation("Muzzle");
+
+		if (!!FireSound)
+		{
+			UGameplayStatics::SpawnSoundAtLocation(GetWorld(), FireSound, MuzzleLocation);
+		}
+
+		if (!!BulletClass)
+		{
+
+			FVector location = Mesh->GetSocketLocation("Muzzle_Bullet");
+
+			FActorSpawnParameters params;
+			params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+			AC_Bullet* bullet = GetWorld()->SpawnActor<AC_Bullet>(BulletClass, location, direction.Rotation(), params);
+
+			if (!!bullet)
+			{
+				bullet->Shoot(direction);
+				BulletCount--;
+			}
+
 		}
 	}
+
+}
+
+void AC_Weapon::Reload()
+{
+	bReloading = true;
+
+	if (!!ReloadMontage)
+		OwnerCharacter->PlayAnimMontage(ReloadMontage, ReloadMontage_PlayRate);
 }
 
