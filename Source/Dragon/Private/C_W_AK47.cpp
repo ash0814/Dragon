@@ -33,7 +33,7 @@ AC_W_AK47::AC_W_AK47()
 
 		ReloadMontage_PlayRate = 1.0f;
 		MagazineSocketName = "Magazine_L";
-		MagazineBoneName = "Magazine";
+		MagazineBoneName = "b_gun_mag";
 	}
 
 	//Recoil
