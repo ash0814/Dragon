@@ -11,7 +11,7 @@ AC_Enemy_Boss::AC_Enemy_Boss()
 	if (tempMesh.Succeeded())
 	{
 		GetMesh()->SetSkeletalMesh(tempMesh.Object);
-		GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 88.0f), FRotator(0.0f, -90.0f, 0.0f));
+		GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, -90.0f, 0.0f));
 	}
 
 	//ABP วาด็
