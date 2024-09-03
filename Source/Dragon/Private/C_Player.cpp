@@ -17,7 +17,7 @@
 		PrimaryActorTick.bCanEverTick = true;
 
 		//스켈레탈메시 데이터 불러오기
-		ConstructorHelpers::FObjectFinder<USkeletalMesh> TempMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/Mannequin_UE4/Meshes/SK_Mannequin.SK_Mannequin'"));
+		ConstructorHelpers::FObjectFinder<USkeletalMesh> TempMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/SciFi_Space_Soldier/Meshes/SK_SciFi_Space_Soldier.SK_SciFi_Space_Soldier'"));
 		if (TempMesh.Succeeded())
 		{
 			GetMesh()->SetSkeletalMesh(TempMesh.Object);
