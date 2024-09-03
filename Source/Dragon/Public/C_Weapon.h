@@ -35,6 +35,15 @@ protected:	//Fire Value
 	TSubclassOf<class AC_Bullet> BulletClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+	class UParticleSystem* FlashParticle;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+	class UParticleSystem* EjectParticle;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+	class USoundWave* FireSound;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
 	float FireInterval = 0.1f;	//Fire Speed
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
@@ -43,9 +52,25 @@ protected:	//Fire Value
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
 	float RecoilAngle;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+	int32 BulletCount;
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Reload")
+	class UAnimMontage* ReloadMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Reload")
+	float ReloadMontage_PlayRate;
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Hit")
 	float HitDistance = 3000.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Hit")
+	class UMaterialInstanceConstant* HitDecal;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Hit")
+	class UParticleSystem* HitParticle;
 
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -82,6 +107,8 @@ public://Fire Func
 
 	void OnFiring();
 
+public://Reload
+	void Reload();
 
 protected:
 	class ACharacter* OwnerCharacter;
@@ -89,6 +116,7 @@ protected:
 private:
 	bool bEquipping;
 	bool bFiring;
+	bool bReloading;
 
 	FTimerHandle FireHandle;
 };

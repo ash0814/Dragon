@@ -4,7 +4,6 @@
 AC_W_AK47::AC_W_AK47()
 {
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkelMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Project/Asset/FPS_Weapon_Bundle/Weapons/Meshes/Ka47/SK_KA47.SK_KA47'"));
-
 	if (SkelMesh.Succeeded())
 		Mesh->SetSkeletalMesh(SkelMesh.Object);
 
@@ -21,11 +20,25 @@ AC_W_AK47::AC_W_AK47()
 		LeftHandLocation = FVector(-37.0f, 12.5f, 7.0f);
 	}
 
+	//Reload
+	{
+		static ConstructorHelpers::FObjectFinder<UAnimMontage> Reload(TEXT("/Script/Engine.AnimMontage'/Game/Project/Asset/AnimStarterPack/AnimStarter/Reload_Rifle.Reload_Rifle'"));
+		if (Reload.Succeeded())
+			ReloadMontage = Reload.Object;
+
+		ReloadMontage_PlayRate = 1.0f;
+	}
+
 	//Recoil
 	{
 		RecoilRate = 0.3f;
 		RecoilAngle = 1.0f;
 		FireInterval = 0.1f;
+	}
+
+	//Bullet
+	{
+		BulletCount = 40;
 	}
 }
 
