@@ -23,10 +23,10 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere, Category="Crystal")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Crystal")
 	float TotalHP;
 
-	UPROPERTY(EditAnywhere, Category="Crystal")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Crystal")
 	float CurrentHP;
 
 	UPROPERTY(EditAnywhere, Category = "Crystal")
