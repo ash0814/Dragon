@@ -20,7 +20,7 @@ private:
 	class UProjectileMovementComponent* Projectile;
 
 protected:
-	UPROPERTY(VisibleAnywhere, Category = "Damage")
+	UPROPERTY(EditAnywhere, Category = "Damage")
 	float BulletDamage;
 
 public:	

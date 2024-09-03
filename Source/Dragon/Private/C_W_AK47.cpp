@@ -1,5 +1,6 @@
 #include "C_W_AK47.h"
 #include "CHelpers.h"
+#include "C_Magazine.h"
 
 AC_W_AK47::AC_W_AK47()
 {
@@ -26,7 +27,13 @@ AC_W_AK47::AC_W_AK47()
 		if (Reload.Succeeded())
 			ReloadMontage = Reload.Object;
 
+		static ConstructorHelpers::FClassFinder<AC_Magazine> Mag(TEXT("/Script/Engine.Blueprint'/Game/Player/P_BulePrint/BP_C_Magazine.BP_C_Magazine_C'"));
+		if (Mag.Succeeded())
+			MagazineClass = Mag.Class;
+
 		ReloadMontage_PlayRate = 1.0f;
+		MagazineSocketName = "Magazine_L";
+		MagazineBoneName = "Magazine";
 	}
 
 	//Recoil
@@ -38,7 +45,7 @@ AC_W_AK47::AC_W_AK47()
 
 	//Bullet
 	{
-		BulletCount = 40;
+		DefaultBulletCount = 40;
 	}
 }
 

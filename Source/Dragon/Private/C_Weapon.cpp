@@ -3,6 +3,7 @@
 
 #include "C_WeaponComponent.h"
 #include "C_Bullet.h"
+#include "C_Magazine.h"
 
 #include "Components/DecalComponent.h"
 #include "GameFramework/Character.h"
@@ -67,6 +68,8 @@ void AC_Weapon::BeginPlay()
 	{
 		AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), HolsterSocketName);
 	}
+
+	CurrentBulletCount = DefaultBulletCount;
 }
 
 void AC_Weapon::Tick(float DeltaTime)
@@ -81,6 +84,7 @@ bool AC_Weapon::CanEquip()
 
 	b |= bEquipping;
 	b |= bFiring;
+	b |= bReloading;
 
 	return !b;
 }
@@ -112,6 +116,7 @@ bool AC_Weapon::CanUnEquip()
 
 	b |= bEquipping;
 	b |= bFiring;
+	b |= bReloading;
 
 	return !b;
 }
@@ -130,20 +135,19 @@ bool AC_Weapon::CanFire()
 
 	b |= bEquipping;
 	b |= bFiring;
+	b |= bReloading;
 
 	return !b;
 }
 
 void AC_Weapon::Begin_Fire()
 {
-
 	bFiring = true;
 
 	//FireInterval 마다 OnFiring() 호출
 	GetWorld()->GetTimerManager().SetTimer(FireHandle, this, &AC_Weapon::OnFiring, FireInterval, true, 0);
 
 	OnFiring();
-
 }
 
 void AC_Weapon::End_Fire()
@@ -160,13 +164,31 @@ void AC_Weapon::End_Fire()
 
 void AC_Weapon::OnFiring()
 {
+	if (CurrentBulletCount > 0)
+	{
+		CurrentBulletCount--;
+	}
+	else
+	{
+		if (CanReload())
+		{
+			Reload();
+		}
+	}
+
 	UCameraComponent* camera = Cast<UCameraComponent>(Owner->GetComponentByClass(UCameraComponent::StaticClass()));
 
 	FVector direction = camera->GetForwardVector();
 	FTransform transform = camera->GetComponentToWorld();
 
-	//LineTrace Start & End Locaiton
+	//LineTrace Start
 	FVector start = transform.GetLocation() + direction;
+
+	//Weapon Spread
+	direction = UKismetMathLibrary::RandomUnitVectorInConeInDegrees(direction, RecoilAngle);
+	/////////////////////////////////////////////////////
+
+	//LineTrace End
 	FVector end = transform.GetLocation() + direction * HitDistance;
 	///////////////////////////////////////////////////
 
@@ -175,77 +197,125 @@ void AC_Weapon::OnFiring()
 	FHitResult hitResult;
 	UKismetSystemLibrary::LineTraceSingle(GetWorld(), start, end, ETraceTypeQuery::TraceTypeQuery1, false, ignores, EDrawDebugTrace::None, hitResult, true);
 
-	if (BulletCount > 0)
+	//Recoil
+	OwnerCharacter->AddControllerPitchInput(-RecoilRate * UKismetMathLibrary::RandomFloatInRange(0.5f, 1.2f));
+
+
+	if (hitResult.bBlockingHit)
 	{
-		//Recoil
-		OwnerCharacter->AddControllerPitchInput(-RecoilRate * UKismetMathLibrary::RandomFloatInRange(0.5f, 1.2f));
-		/////////////////////////////////////////////////////
-
-		//Weapon Spread
-		direction = UKismetMathLibrary::RandomUnitVectorInConeInDegrees(direction, RecoilAngle);
-		/////////////////////////////////////////////////////
-
-		if (hitResult.bBlockingHit)
+		if (!!HitDecal)
 		{
-			if (!!HitDecal)
-			{
-				FRotator rotator = hitResult.ImpactNormal.Rotation();
+			FRotator rotator = hitResult.ImpactNormal.Rotation();
 
-				UDecalComponent* decal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), HitDecal, FVector(5), hitResult.Location, rotator, 10);
-				decal->SetFadeScreenSize(0);
-			}
-
-			if (!!HitParticle)
-			{
-				FRotator rotator = UKismetMathLibrary::FindLookAtRotation(hitResult.Location, hitResult.TraceStart);
-
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticle, hitResult.Location, rotator);
-			}
+			UDecalComponent* decal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), HitDecal, FVector(5), hitResult.Location, rotator, 10);
+			decal->SetFadeScreenSize(0);
 		}
 
-		if (!!FlashParticle)
+		if (!!HitParticle)
 		{
-			UGameplayStatics::SpawnEmitterAttached(FlashParticle, Mesh, "Muzzle", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset);
-		}
+			FRotator rotator = UKismetMathLibrary::FindLookAtRotation(hitResult.Location, hitResult.TraceStart);
 
-		if (!!EjectParticle)
-		{
-			UGameplayStatics::SpawnEmitterAttached(EjectParticle, Mesh, "Eject", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset);
-		}
-
-		FVector MuzzleLocation = Mesh->GetSocketLocation("Muzzle");
-
-		if (!!FireSound)
-		{
-			UGameplayStatics::SpawnSoundAtLocation(GetWorld(), FireSound, MuzzleLocation);
-		}
-
-		if (!!BulletClass)
-		{
-
-			FVector location = Mesh->GetSocketLocation("Muzzle_Bullet");
-
-			FActorSpawnParameters params;
-			params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-			AC_Bullet* bullet = GetWorld()->SpawnActor<AC_Bullet>(BulletClass, location, direction.Rotation(), params);
-
-			if (!!bullet)
-			{
-				bullet->Shoot(direction);
-				BulletCount--;
-			}
-
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticle, hitResult.Location, rotator);
 		}
 	}
 
+	if (!!FlashParticle)
+	{
+		UGameplayStatics::SpawnEmitterAttached(FlashParticle, Mesh, "Muzzle", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset);
+	}
+
+	if (!!EjectParticle)
+	{
+		UGameplayStatics::SpawnEmitterAttached(EjectParticle, Mesh, "Eject", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset);
+	}
+
+	FVector MuzzleLocation = Mesh->GetSocketLocation("Muzzle");
+
+	if (!!FireSound)
+	{
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), FireSound, MuzzleLocation);
+	}
+
+	if (!!BulletClass)
+	{
+
+		FVector location = Mesh->GetSocketLocation("Muzzle_Bullet");
+
+		FActorSpawnParameters params;
+		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		AC_Bullet* bullet = GetWorld()->SpawnActor<AC_Bullet>(BulletClass, location, direction.Rotation(), params);
+
+		if (!!bullet)
+		{
+			bullet->Shoot(direction);
+		}
+
+	}
+}
+
+bool AC_Weapon::CanReload()
+{
+	bool b = false;
+	b |= bEquipping;
+	b |= bReloading;
+
+	return !b;
 }
 
 void AC_Weapon::Reload()
 {
 	bReloading = true;
 
+	End_Fire();
+
 	if (!!ReloadMontage)
 		OwnerCharacter->PlayAnimMontage(ReloadMontage, ReloadMontage_PlayRate);
+
+	CurrentBulletCount = DefaultBulletCount;
+	
+}
+
+void AC_Weapon::Eject_Magazine()
+{
+	if (MagazineBoneName.IsValid())
+		Mesh->HideBoneByName(MagazineBoneName, EPhysBodyOp::PBO_None);
+
+	CheckNUll(MagazineClass);
+
+	FTransform transform = Mesh->GetSocketTransform(MagazineBoneName);
+	AC_Magazine* magazine = GetWorld()->SpawnActorDeferred<AC_Magazine>(MagazineClass, transform, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+
+	magazine->SetEject();
+	magazine->SetLifeSpan(5);
+	magazine->FinishSpawning(transform);
+}
+
+void AC_Weapon::Spawn_Magazine()
+{
+	CheckNUll(MagazineClass);
+
+	FActorSpawnParameters params;
+	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	Magazine = GetWorld()->SpawnActor<AC_Magazine>(MagazineClass, params);
+
+	Magazine->AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), MagazineSocketName);
+}
+
+void AC_Weapon::Load_Magazine()
+{
+	CurrentBulletCount = DefaultBulletCount;
+
+	if (MagazineBoneName.IsValid())
+		Mesh->UnHideBoneByName(MagazineBoneName);
+
+	if (!!Magazine)
+		Magazine->Destroy();
+}
+
+void AC_Weapon::End_Reload()
+{
+	bReloading = false;
 }
 
