@@ -12,7 +12,6 @@ enum class EWeaponType : uint8
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FWeaponTypeChanged, EWeaponType, InPrevType, EWeaponType, InNewType);
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE(FWeaponInputDelegate);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class DRAGON_API UC_WeaponComponent : public UActorComponent
@@ -34,6 +33,13 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
 	class UUserWidget* CrossHair;
 
+public:
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputAction* IA_Equip;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputAction* IA_Fire;
+
 public:	
 	UC_WeaponComponent();
 
@@ -43,11 +49,19 @@ protected:
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	void SetupInputBinding(class UEnhancedInputComponent* PlayerInput);
+
+
+protected:
+	virtual void InitializeComponent() override;
+
 private:
 	AC_Weapon* GetCurrentWeapon();
 
 public://Set Current Mode
 	void SetUnarmedMode();
+
+	UFUNCTION()
 	void SetAK47Mode();
 
 private://Set Mode & Change Mode
@@ -66,17 +80,10 @@ private:
 	void UpdateCrossHair();
 
 public://Fire
-	//UPROPERTY(BlueprintAssignable, Category = "Weapon Input")
-	//FWeaponInputDelegate OnBegin_Fire;
-
-	//UPROPERTY(BlueprintAssignable, Category = "Weapon Input")
-	//FWeaponInputDelegate OnEnd_Fire;
-
-	//UPROPERTY(BlueprintAssignable, Category = "Weapon Input")
-	//FWeaponInputDelegate OnSetMode;
-
 	void Begin_Fire();
 	void End_Fire();
+
+
 
 public:
 	FVector GetLefrHandLocation();

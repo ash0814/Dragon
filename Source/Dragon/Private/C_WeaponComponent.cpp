@@ -4,6 +4,7 @@
 #include "C_Weapon.h"
 #include "C_Player.h"
 
+#include "EnhancedInputComponent.h"
 #include "GameFramework/Character.h"
 #include "Blueprint/UserWidget.h"
 #include "GameFramework/PlayerController.h"
@@ -13,32 +14,12 @@ UC_WeaponComponent::UC_WeaponComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
+	bWantsInitializeComponent = true;
 }
 
 void UC_WeaponComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	////SetMode Delegate Bind
-	//OnSetMode.AddDynamic(this, &UC_WeaponComponent::SetAK47Mode);
-	////////////////////////////////////////////////////////////////
-
-	////Fire Delegate Bind
-	//OnBegin_Fire.AddDynamic(this, &UC_WeaponComponent::Begin_Fire);
-	//OnEnd_Fire.AddDynamic(this, &UC_WeaponComponent::End_Fire);
-	////////////////////////////////////////////////////////////////
-
-	if (CrossHairClass)
-	{
-		CrossHair = CreateWidget<UUserWidget>(GetWorld(), CrossHairClass);
-
-		if (CrossHair)
-		{
-			CrossHair->AddToViewport();
-			CrossHair->SetVisibility(ESlateVisibility::Hidden);
-		}
-	}
-
 
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
 	CheckNUll(OwnerCharacter);
@@ -55,9 +36,21 @@ void UC_WeaponComponent::BeginPlay()
 			Weapons.Add(weapon);
 		}
 	}
+
+	if (CrossHairClass)
+	{
+		CrossHair = CreateWidget<UUserWidget>(GetWorld(), CrossHairClass);
+
+		if (CrossHair)
+		{
+			CrossHair->AddToViewport();
+			CrossHair->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
+
+
+
 }
-
-
 
 void UC_WeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -67,6 +60,14 @@ void UC_WeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 	{
 		UpdateCrossHair();
 	}
+}
+
+void UC_WeaponComponent::SetupInputBinding(UEnhancedInputComponent* PlayerInput)
+{
+	PlayerInput->BindAction(IA_Equip, ETriggerEvent::Started, this, &UC_WeaponComponent::SetAK47Mode);
+
+	PlayerInput->BindAction(IA_Fire, ETriggerEvent::Triggered, this, &UC_WeaponComponent::Begin_Fire);
+	PlayerInput->BindAction(IA_Fire, ETriggerEvent::Completed, this, &UC_WeaponComponent::End_Fire);
 }
 
 AC_Weapon* UC_WeaponComponent::GetCurrentWeapon()
@@ -155,6 +156,16 @@ void UC_WeaponComponent::End_Fire()
 	CheckNUll(GetCurrentWeapon());
 
 	GetCurrentWeapon()->End_Fire();
+}
+
+void UC_WeaponComponent::InitializeComponent()
+{
+	OwnerCharacter = Cast<ACharacter>(GetOwner());
+
+	if (AC_Player* player = Cast<AC_Player>(OwnerCharacter))
+	{
+		player->OnInputBindingDelegate.AddUObject(this, &UC_WeaponComponent::SetupInputBinding);
+	}
 }
 
 FVector UC_WeaponComponent::GetLefrHandLocation()

@@ -29,7 +29,7 @@ AC_Weapon::AC_Weapon()
 			BulletClass = bullet.Class;
 
 		//HitDecal
-		static ConstructorHelpers::FObjectFinder<UMaterialInstanceConstant> Decal(TEXT("/Script/Engine.Material'/Game/Project/Asset/Materials/Texture/Bullet_Hole_Mat.Bullet_Hole_Mat'"));
+		static ConstructorHelpers::FObjectFinder<UMaterialInstanceConstant> Decal(TEXT("/Script/Engine.MaterialInstanceConstant'/Game/Project/Asset/Materials/Texture/Bullet_Hole_Mat_Inst.Bullet_Hole_Mat_Inst'"));
 		if (Decal.Succeeded())
 			HitDecal = Decal.Object;
 

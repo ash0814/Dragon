@@ -96,12 +96,8 @@
 			PlayerInput->BindAction(ia_jump, ETriggerEvent::Started, this, &AC_Player::InputJump);
 			PlayerInput->BindAction(ia_fly, ETriggerEvent::Triggered, this, &AC_Player::Fly);
 
-			PlayerInput->BindAction(ia_equip, ETriggerEvent::Started, WeaponComp, &UC_WeaponComponent::SetAK47Mode);
-
-			PlayerInput->BindAction(ia_fire, ETriggerEvent::Triggered, WeaponComp, &UC_WeaponComponent::Begin_Fire);
-			PlayerInput->BindAction(ia_fire, ETriggerEvent::Completed, WeaponComp, &UC_WeaponComponent::End_Fire);
-
-
+			
+			OnInputBindingDelegate.Broadcast(PlayerInput);
 		}
 	}
 
@@ -176,19 +172,3 @@
 		// 입력 값과 계산된 Z축 값 로그 출력
 		//UE_LOG(LogTemp, Warning, TEXT("Input Value: %f, Calculated Z: %f"), flyValue, direction.Z);
 	}
-
-	//void AC_Player::PlayerBegin_Fire()
-	//{
-	//	if (WeaponComp)
-	//	{
-	//		WeaponComp->OnBegin_Fire.Broadcast();
-	//	}
-	//}
-
-	//void AC_Player::PlayerEnd_Fire()
-	//{
-	//	if (WeaponComp)
-	//	{
-	//		WeaponComp->OnEnd_Fire.Broadcast();
-	//	}
-	//}
