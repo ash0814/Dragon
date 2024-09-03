@@ -40,6 +40,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_Fire;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputAction* IA_Reload;
+
 public:	
 	UC_WeaponComponent();
 
@@ -83,6 +86,9 @@ public://Fire
 	void Begin_Fire();
 	void End_Fire();
 
+public://Reload
+	void Reload();
+	void Eject();
 
 
 public:

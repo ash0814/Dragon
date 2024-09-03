@@ -42,6 +42,8 @@ AC_Bullet::AC_Bullet()
 		Projectile->InitialSpeed = 2e+4f;
 		Projectile->MaxSpeed = 2e+4f;
 		Projectile->ProjectileGravityScale = 0;
+
+		BulletDamage = 10.0f;
 	}
 }
 
@@ -63,6 +65,11 @@ void AC_Bullet::Shoot(const FVector& InDir)
 
 void AC_Bullet::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (OtherActor && OtherActor != this && OtherComp)
+	{
+		UGameplayStatics::ApplyDamage(OtherActor, BulletDamage, GetInstigatorController(), this, UDamageType::StaticClass());
+	}
+
 	Destroy();
 }
 

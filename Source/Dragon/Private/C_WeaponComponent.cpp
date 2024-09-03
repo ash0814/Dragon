@@ -68,6 +68,8 @@ void UC_WeaponComponent::SetupInputBinding(UEnhancedInputComponent* PlayerInput)
 
 	PlayerInput->BindAction(IA_Fire, ETriggerEvent::Triggered, this, &UC_WeaponComponent::Begin_Fire);
 	PlayerInput->BindAction(IA_Fire, ETriggerEvent::Completed, this, &UC_WeaponComponent::End_Fire);
+
+	PlayerInput->BindAction(IA_Reload, ETriggerEvent::Started, this, &UC_WeaponComponent::Reload);
 }
 
 AC_Weapon* UC_WeaponComponent::GetCurrentWeapon()
@@ -158,6 +160,19 @@ void UC_WeaponComponent::End_Fire()
 	GetCurrentWeapon()->End_Fire();
 }
 
+void UC_WeaponComponent::Reload()
+{
+	CheckNUll(GetCurrentWeapon());
+
+	GetCurrentWeapon()->Reload();
+}
+
+void UC_WeaponComponent::Eject()
+{
+
+}
+
+//Delegate Init Function
 void UC_WeaponComponent::InitializeComponent()
 {
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
@@ -167,6 +182,7 @@ void UC_WeaponComponent::InitializeComponent()
 		player->OnInputBindingDelegate.AddUObject(this, &UC_WeaponComponent::SetupInputBinding);
 	}
 }
+///////////////////////////////////////////////////////////////
 
 FVector UC_WeaponComponent::GetLefrHandLocation()
 {
@@ -175,6 +191,8 @@ FVector UC_WeaponComponent::GetLefrHandLocation()
 	return GetCurrentWeapon()->GetLeftHandLocation();
 }
 
+
+//CrossHair UI Function
 void UC_WeaponComponent::ShowCrossHair()
 {
 	if (CrossHair)
@@ -212,3 +230,4 @@ void UC_WeaponComponent::UpdateCrossHair()
 		PanelSlot->SetPosition(FVector2D(X / 2 - 25, Y / 2 - 25));
 	}
 }
+///////////////////////////////////////////////////////////////

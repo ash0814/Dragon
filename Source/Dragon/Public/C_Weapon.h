@@ -52,6 +52,16 @@ protected:	//Fire Value
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
 	float RecoilAngle;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+	int32 BulletCount;
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Reload")
+	class UAnimMontage* ReloadMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Reload")
+	float ReloadMontage_PlayRate;
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Hit")
 	float HitDistance = 3000.0f;
@@ -97,6 +107,8 @@ public://Fire Func
 
 	void OnFiring();
 
+public://Reload
+	void Reload();
 
 protected:
 	class ACharacter* OwnerCharacter;
@@ -104,6 +116,7 @@ protected:
 private:
 	bool bEquipping;
 	bool bFiring;
+	bool bReloading;
 
 	FTimerHandle FireHandle;
 };

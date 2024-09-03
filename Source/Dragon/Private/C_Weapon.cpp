@@ -136,12 +136,14 @@ bool AC_Weapon::CanFire()
 
 void AC_Weapon::Begin_Fire()
 {
+
 	bFiring = true;
 
 	//FireInterval 마다 OnFiring() 호출
 	GetWorld()->GetTimerManager().SetTimer(FireHandle, this, &AC_Weapon::OnFiring, FireInterval, true, 0);
 
 	OnFiring();
+
 }
 
 void AC_Weapon::End_Fire()
@@ -165,9 +167,6 @@ void AC_Weapon::OnFiring()
 
 	//LineTrace Start & End Locaiton
 	FVector start = transform.GetLocation() + direction;
-
-	direction = UKismetMathLibrary::RandomUnitVectorInConeInDegrees(direction, RecoilAngle);
-
 	FVector end = transform.GetLocation() + direction * HitDistance;
 	///////////////////////////////////////////////////
 
@@ -176,58 +175,77 @@ void AC_Weapon::OnFiring()
 	FHitResult hitResult;
 	UKismetSystemLibrary::LineTraceSingle(GetWorld(), start, end, ETraceTypeQuery::TraceTypeQuery1, false, ignores, EDrawDebugTrace::None, hitResult, true);
 
-	//Recoil
-	OwnerCharacter->AddControllerPitchInput(-RecoilRate * UKismetMathLibrary::RandomFloatInRange(0.5f, 1.2f));
-	/////////////////////////////////////////////////////
-
-	if (hitResult.bBlockingHit)
+	if (BulletCount > 0)
 	{
-		if (!!HitDecal)
-		{
-			FRotator rotator = hitResult.ImpactNormal.Rotation();
+		//Recoil
+		OwnerCharacter->AddControllerPitchInput(-RecoilRate * UKismetMathLibrary::RandomFloatInRange(0.5f, 1.2f));
+		/////////////////////////////////////////////////////
 
-			UDecalComponent* decal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), HitDecal, FVector(5), hitResult.Location, rotator, 10);
-			decal->SetFadeScreenSize(0);
+		//Weapon Spread
+		direction = UKismetMathLibrary::RandomUnitVectorInConeInDegrees(direction, RecoilAngle);
+		/////////////////////////////////////////////////////
+
+		if (hitResult.bBlockingHit)
+		{
+			if (!!HitDecal)
+			{
+				FRotator rotator = hitResult.ImpactNormal.Rotation();
+
+				UDecalComponent* decal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), HitDecal, FVector(5), hitResult.Location, rotator, 10);
+				decal->SetFadeScreenSize(0);
+			}
+
+			if (!!HitParticle)
+			{
+				FRotator rotator = UKismetMathLibrary::FindLookAtRotation(hitResult.Location, hitResult.TraceStart);
+
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticle, hitResult.Location, rotator);
+			}
 		}
 
-		if (!!HitParticle)
+		if (!!FlashParticle)
 		{
-			FRotator rotator = UKismetMathLibrary::FindLookAtRotation(hitResult.Location, hitResult.TraceStart);
-
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticle, hitResult.Location, rotator);
+			UGameplayStatics::SpawnEmitterAttached(FlashParticle, Mesh, "Muzzle", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset);
 		}
-	}
 
-	if (!!FlashParticle)
-	{
-		UGameplayStatics::SpawnEmitterAttached(FlashParticle, Mesh, "Muzzle", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset);
-	}
-
-	if (!!EjectParticle)
-	{
-		UGameplayStatics::SpawnEmitterAttached(EjectParticle, Mesh, "Eject", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset);
-	}
+		if (!!EjectParticle)
+		{
+			UGameplayStatics::SpawnEmitterAttached(EjectParticle, Mesh, "Eject", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset);
+		}
 
 		FVector MuzzleLocation = Mesh->GetSocketLocation("Muzzle");
 
-	if (!!FireSound)
-	{
-		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), FireSound, MuzzleLocation);
-	}
-
-	if (!!BulletClass)
-	{
-		FVector location = Mesh->GetSocketLocation("Muzzle_Bullet");
-
-		FActorSpawnParameters params;
-		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-		AC_Bullet* bullet = GetWorld()->SpawnActor<AC_Bullet>(BulletClass, location, direction.Rotation(), params);
-
-		if (!!bullet)
+		if (!!FireSound)
 		{
-			bullet->Shoot(direction);
+			UGameplayStatics::SpawnSoundAtLocation(GetWorld(), FireSound, MuzzleLocation);
+		}
+
+		if (!!BulletClass)
+		{
+
+			FVector location = Mesh->GetSocketLocation("Muzzle_Bullet");
+
+			FActorSpawnParameters params;
+			params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+			AC_Bullet* bullet = GetWorld()->SpawnActor<AC_Bullet>(BulletClass, location, direction.Rotation(), params);
+
+			if (!!bullet)
+			{
+				bullet->Shoot(direction);
+				BulletCount--;
+			}
+
 		}
 	}
+
+}
+
+void AC_Weapon::Reload()
+{
+	bReloading = true;
+
+	if (!!ReloadMontage)
+		OwnerCharacter->PlayAnimMontage(ReloadMontage, ReloadMontage_PlayRate);
 }
 
