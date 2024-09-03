@@ -27,7 +27,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Weapon")
 	TArray<TSubclassOf<class AC_Weapon>> WeaponClasses;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "UI")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
 	TSubclassOf<class UUserWidget> CrossHairClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
