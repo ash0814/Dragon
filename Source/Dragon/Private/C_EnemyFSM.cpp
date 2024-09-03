@@ -4,9 +4,10 @@
 #include "C_EnemyFSM.h"
 #include <Kismet/GameplayStatics.h>
 #include "C_Enemy.h"
+#include "C_Player.h"
 #include <Components/CapsuleComponent.h>
 #include "C_EnemyAnimInstance.h"
-// #include <AIController.h>
+#include <AIController.h>
 #include <NavigationSystem.h>
 
 // Sets default values for this component's properties
@@ -25,7 +26,7 @@ void UC_EnemyFSM::BeginPlay()
 	Super::BeginPlay();
 
 	auto actor = UGameplayStatics::GetActorOfClass(GetWorld(), AC_Enemy::StaticClass());
-	player = Cast<ADragonFirePlayer>(actor);
+	player = Cast<AC_Player>(actor);
 	me = Cast<AC_Enemy>(GetOwner());
 
 	anim = Cast<UC_EnemyAnimInstance>(me->GetMesh()->GetAnimInstance());

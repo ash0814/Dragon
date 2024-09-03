@@ -51,7 +51,7 @@ public:
     float currentTime = 0;
 
     UPROPERTY(VisibleAnywhere, Category = FSM)
-    class ADragonFirePlayer* player;
+    class AC_Player* player;
 
     UPROPERTY()
     class AC_Enemy* me;
