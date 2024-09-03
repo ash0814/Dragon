@@ -2,6 +2,10 @@
 
 
 #include "C_Crystal.h"
+#include "Components/SphereComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
+
 
 // Sets default values
 AC_Crystal::AC_Crystal()
@@ -12,11 +16,14 @@ AC_Crystal::AC_Crystal()
 	TotalHP = 100;
 	CurrentHP = 100;
 
-	SphereMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SphereMesh"));
-	SetRootComponent(SphereMesh);
+	sphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("My Sphere Comp"));
+	SetRootComponent(sphereComp);
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh>SphereMeshAsset(TEXT("StaticMesh'/Engine/BasicShapes/Sphere.Sphere'"));
-	SphereMesh->SetStaticMesh(SphereMeshAsset.Object);
+	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("My Static Mesh"));
+	MeshComponent->SetupAttachment(sphereComp);
+
+	float sphereSize = 50.0f;
+	sphereComp->SetSphereRadius(sphereSize);
 }
 
 // Called when the game starts or when spawned
@@ -31,5 +38,32 @@ void AC_Crystal::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AC_Crystal::Die()
+{
+	Destroy();
+}
+
+float AC_Crystal::TakeDamage(float damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	// 데미지 처리
+	float ActualDamage = Super::TakeDamage(damage, DamageEvent, EventInstigator, DamageCauser);
+
+	if (ActualDamage > 0.0f)
+	{
+		// 체력 감소
+		CurrentHP -= ActualDamage;
+
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("CurrentHP : %f"), CurrentHP));
+
+		// 체력이 0 이하이면 사망 처리
+		if (CurrentHP <= 0.0f)
+		{
+			Die();
+		}
+	}
+
+	return ActualDamage;
 }
 

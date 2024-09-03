@@ -29,6 +29,13 @@ public:
 	UPROPERTY(EditAnywhere, Category="Crystal")
 	float CurrentHP;
 
-	// sphere static mesh
-	UStaticMeshComponent* SphereMesh;
+	UPROPERTY(EditAnywhere, Category = "Crystal")
+	class USphereComponent* sphereComp;
+	
+	UPROPERTY(EditAnywhere, Category = "Crystal")
+	class UStaticMeshComponent* MeshComponent;
+
+	void Die();
+
+	virtual float TakeDamage(float damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 };
