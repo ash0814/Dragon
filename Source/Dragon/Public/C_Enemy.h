@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "C_EnemyFSM.h"
 #include "C_Enemy.generated.h"
 
 UCLASS()
@@ -26,11 +27,15 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	virtual void Die();
+	UPROPERTY(EditAnywhere, Category = "Enemy")
+	float MaxHP;
+	UPROPERTY(EditAnywhere, Category = "Enemy")
+	float CurrentHP;
 
-	UPROPERTY(EditAnywhere)
-	float defaultHP = 100.0f;
+	void Die();
 
-	UPROPERTY(EditAnywhere)
-	float currentHP = 100.0f;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "FSM")
+	UC_EnemyFSM* EnemyFSM;
+
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 };
