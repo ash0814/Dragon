@@ -88,8 +88,10 @@ public://Fire
 
 public://Reload
 	void Reload();
-	void Eject();
-
+	void Eject_Magazine();
+	void Spawn_Magazine();
+	void Load_Magazine();
+	void End_Reload();
 
 public:
 	FVector GetLefrHandLocation();

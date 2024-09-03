@@ -47,9 +47,6 @@ void UC_WeaponComponent::BeginPlay()
 			CrossHair->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
-
-
-
 }
 
 void UC_WeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -167,9 +164,32 @@ void UC_WeaponComponent::Reload()
 	GetCurrentWeapon()->Reload();
 }
 
-void UC_WeaponComponent::Eject()
+void UC_WeaponComponent::Eject_Magazine()
 {
+	CheckNUll(GetCurrentWeapon());
 
+	GetCurrentWeapon()->Eject_Magazine();
+}
+
+void UC_WeaponComponent::Spawn_Magazine()
+{
+	CheckNUll(GetCurrentWeapon());
+
+	GetCurrentWeapon()->Spawn_Magazine();
+}
+
+void UC_WeaponComponent::Load_Magazine()
+{
+	CheckNUll(GetCurrentWeapon());
+
+	GetCurrentWeapon()->Load_Magazine();
+}
+
+void UC_WeaponComponent::End_Reload()
+{
+	CheckNUll(GetCurrentWeapon());
+
+	GetCurrentWeapon()->End_Reload();
 }
 
 //Delegate Init Function
