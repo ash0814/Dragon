@@ -25,7 +25,7 @@ void UC_EnemyFSM::BeginPlay()
 {
 	Super::BeginPlay();
 
-	auto actor = UGameplayStatics::GetActorOfClass(GetWorld(), AC_Enemy::StaticClass());
+	auto actor = UGameplayStatics::GetActorOfClass(GetWorld(), AC_Player::StaticClass());
 	player = Cast<AC_Player>(actor);
 	me = Cast<AC_Enemy>(GetOwner());
 
@@ -83,7 +83,9 @@ void UC_EnemyFSM::MoveState()
 	FVector destination = player->GetActorLocation();
 	FVector dir = destination - me->GetActorLocation();
 	//me->AddMovementInput(dir.GetSafeNormal());
+	
 	ai->MoveToLocation(destination);
+	
 	//auto ns = UNavigationSystemV1::GetNavigationSystem(GetWorld());
 
 	//FPathFindingQuery query;
