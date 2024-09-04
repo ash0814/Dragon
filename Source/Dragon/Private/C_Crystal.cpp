@@ -6,7 +6,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Kismet/GameplayStatics.h"
-
+#include "C_GameMode.h"
 
 // Sets default values
 AC_Crystal::AC_Crystal()
@@ -38,7 +38,6 @@ void AC_Crystal::BeginPlay()
 void AC_Crystal::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void AC_Crystal::Die()
