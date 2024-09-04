@@ -54,6 +54,7 @@ void AC_Enemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AC_Enemy::GetHurt(float Amount)
 {
+	EnemyFSM->OnDamageProcess();
 	CurrentHP -= Amount;
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("CurrentHP : %f"), CurrentHP));
 }

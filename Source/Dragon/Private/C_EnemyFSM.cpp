@@ -174,8 +174,8 @@ void UC_EnemyFSM::DieState()
 
 void UC_EnemyFSM::OnDamageProcess()
 {
-	hp--;
-	if (hp>0)
+	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("OnDamageProcess"));
+	if (me->CurrentHP > 0)
 	{
 		mState = EEnemyState::Damage;
 
