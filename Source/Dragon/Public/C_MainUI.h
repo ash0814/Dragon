@@ -23,6 +23,15 @@ public:
 	UPROPERTY(meta=(BindWidget))
 	class UCanvasPanel* ReadyCanvas;
 
+	UPROPERTY(meta=(BindWidget))
+	class UCanvasPanel* GamePlayingCanvas;
+
+	UPROPERTY(meta=(BindWidget))
+	class UWidgetSwitcher* DestroyCrystalDone;
+
 	UFUNCTION()
 	void OnClickGameStart();
+
+	UFUNCTION(BlueprintCallable)
+	void OnChangeCrystalCountZero();
 };

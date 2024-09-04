@@ -27,9 +27,9 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UPROPERTY(EditAnywhere, Category = "Enemy")
+	UPROPERTY(EditAnywhere,BlueprintReadOnly, Category = "Enemy")
 	float MaxHP;
-	UPROPERTY(EditAnywhere, Category = "Enemy")
+	UPROPERTY(EditAnywhere,BlueprintReadOnly, Category = "Enemy")
 	float CurrentHP;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Enemy")

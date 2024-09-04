@@ -5,6 +5,8 @@
 #include "C_MainUI.h"
 #include "Blueprint/UserWidget.h"
 #include "UObject/ConstructorHelpers.h"
+#include "C_Crystal.h"
+#include "Kismet/GameplayStatics.h"
 
 
 AC_GameMode::AC_GameMode()
@@ -30,6 +32,11 @@ void AC_GameMode::BeginPlay()
 
 	GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeUIOnly());
 	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
+
+	// Get Total Crystal Actor Count
+	TArray<AActor*> CrystalActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AC_Crystal::StaticClass(), CrystalActors);
+	TotalCrystalCount = CrystalActors.Num();
 }
 
 void AC_GameMode::Tick(float DeltaTime)

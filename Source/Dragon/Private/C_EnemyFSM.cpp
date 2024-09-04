@@ -5,6 +5,7 @@
 #include "C_Enemy.h"
 #include "C_Player.h"
 #include "C_EnemyAnimInstance.h"
+#include "C_GameMode.h"
 #include <Kismet/GameplayStatics.h>
 #include <Components/CapsuleComponent.h>
 #include <AIController.h>
@@ -175,6 +176,10 @@ void UC_EnemyFSM::DieState()
 void UC_EnemyFSM::OnDamageProcess()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("OnDamageProcess"));
+	if (mState == EEnemyState::Die)
+	{
+		return;
+	}
 	if (me->CurrentHP > 0)
 	{
 		mState = EEnemyState::Damage;

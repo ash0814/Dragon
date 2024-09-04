@@ -36,8 +36,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<class UUserWidget> MainUIWidgetFactory;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	class UC_MainUI* MainUI;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Crystal")
+	int32 TotalCrystalCount = 0;
 
 	void ChangeState(EGameState NewState);
 
@@ -46,7 +49,5 @@ public:
 	void Playing();
 	void Pause();
 	void GameOver();
-
-
 
 };

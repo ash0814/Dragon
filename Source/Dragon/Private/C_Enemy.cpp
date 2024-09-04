@@ -8,6 +8,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Animation/AnimInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "C_GameMode.h"
 
 // Sets default values
 AC_Enemy::AC_Enemy()
@@ -62,11 +63,13 @@ void AC_Enemy::GetHurt(float Amount)
 float AC_Enemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	if (!bCanHurt) {
-		TArray<AActor*> FoundActors;
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AC_Crystal::StaticClass(), FoundActors);
-		if (FoundActors.Num() == 0) {
+		auto GameMode = Cast<AC_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+		if (GameMode != nullptr && GameMode->TotalCrystalCount == 0) {
 			bCanHurt = true;
 			GetHurt(DamageAmount);
+		}
+		else {
+			GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, FString::Printf(TEXT("YOU HAVE TO DESTROY ALL CRYSTAL FIRST")));
 		}
 	} else {
 		GetHurt(DamageAmount);
