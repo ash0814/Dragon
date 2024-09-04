@@ -2,11 +2,11 @@
 
 
 #include "C_EnemyFSM.h"
-#include <Kismet/GameplayStatics.h>
 #include "C_Enemy.h"
 #include "C_Player.h"
-#include <Components/CapsuleComponent.h>
 #include "C_EnemyAnimInstance.h"
+#include <Kismet/GameplayStatics.h>
+#include <Components/CapsuleComponent.h>
 #include <AIController.h>
 #include <NavigationSystem.h>
 
@@ -84,7 +84,6 @@ void UC_EnemyFSM::MoveState()
 	FVector dir = destination - me->GetActorLocation();
 	//me->AddMovementInput(dir.GetSafeNormal());
 	ai->MoveToLocation(destination);
-
 	//auto ns = UNavigationSystemV1::GetNavigationSystem(GetWorld());
 
 	//FPathFindingQuery query;

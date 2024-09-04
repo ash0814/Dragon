@@ -8,6 +8,3 @@ void UC_EnemyAnimInstance::OnEndAttackAnimation()
     bAttackPlay = false;
 }
 
-void UC_EnemyAnimInstance::PlayDamageAnim(FName sectionName)
-{
-}
