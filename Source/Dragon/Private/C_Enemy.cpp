@@ -50,11 +50,11 @@ void AC_Enemy::Die()
 
 float AC_Enemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	//EnemyFSM->
 	if (CurrentHP <= 0)
 	{
-		// EnemyFSM->SetDead();
+		Die();
 	}
+	EnemyFSM->OnDamageProcess();
 	return 0.0f;
 }
 
