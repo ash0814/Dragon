@@ -15,8 +15,11 @@ void UC_MainUI::NativeConstruct()
 	ReadyCanvas = Cast<UCanvasPanel>(GetWidgetFromName(TEXT("ReadyCanvas")));
 	GamePlayingCanvas = Cast<UCanvasPanel>(GetWidgetFromName(TEXT("GamePlayingCanvas")));
 	DestroyCrystalDone = Cast<UWidgetSwitcher>(GetWidgetFromName(TEXT("DestroyCrystalDone")));
+	GameOverCanvas = Cast<UCanvasPanel>(GetWidgetFromName(TEXT("GameOverCanvas")));
 	if (GamePlayingCanvas != nullptr)
 		GamePlayingCanvas->SetVisibility(ESlateVisibility::Hidden);
+	if (GameOverCanvas != nullptr)
+		GameOverCanvas->SetVisibility(ESlateVisibility::Hidden);
 	if (Btn_GameStart != nullptr)
 		Btn_GameStart->OnClicked.AddDynamic(this, &UC_MainUI::OnClickGameStart);
 }
@@ -39,6 +42,15 @@ void UC_MainUI::OnChangeCrystalCountZero()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("OnChangeCrystalCountZero"));
 	DestroyCrystalDone->SetActiveWidgetIndex(1);
+}
+
+void UC_MainUI::OnGameOver()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("OnGameOver"));
+	GamePlayingCanvas->SetVisibility(ESlateVisibility::Hidden);
+	GameOverCanvas->SetVisibility(ESlateVisibility::Visible);
+	GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeUIOnly());
+	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
 }
 
 

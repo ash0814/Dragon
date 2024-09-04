@@ -6,6 +6,7 @@
 #include "C_Player.h"
 #include "C_EnemyAnimInstance.h"
 #include "C_GameMode.h"
+#include "C_MainUI.h"
 #include <Kismet/GameplayStatics.h>
 #include <Components/CapsuleComponent.h>
 #include <AIController.h>
@@ -162,6 +163,7 @@ void UC_EnemyFSM::DieState()
 	{
 		return;
 	}
+
 	FVector P0 = me->GetActorLocation();
 	FVector vt = FVector::DownVector * dieSpeed * GetWorld()->DeltaTimeSeconds; 
 	FVector P = P0 + vt;
@@ -192,6 +194,12 @@ void UC_EnemyFSM::OnDamageProcess()
 	}
 	else
 	{
+		// Get Gamemode
+		auto GameMode = Cast<AC_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+		if (GameMode != nullptr)
+		{
+			GameMode->MainUI->OnGameOver();
+		}
 		mState = EEnemyState::Die;
 		me->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		anim->PlayDamageAnim(TEXT("Die"));

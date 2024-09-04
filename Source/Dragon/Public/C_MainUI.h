@@ -29,9 +29,15 @@ public:
 	UPROPERTY(meta=(BindWidget))
 	class UWidgetSwitcher* DestroyCrystalDone;
 
+	UPROPERTY(meta=(BindWidget))
+	class UCanvasPanel* GameOverCanvas;
+
 	UFUNCTION()
 	void OnClickGameStart();
 
 	UFUNCTION(BlueprintCallable)
 	void OnChangeCrystalCountZero();
+
+	UFUNCTION(BlueprintCallable)
+	void OnGameOver();
 };

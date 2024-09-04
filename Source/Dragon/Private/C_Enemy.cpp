@@ -36,8 +36,8 @@ void AC_Enemy::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	CurrentHP = 1000;
-	MaxHP = 1000;
+	CurrentHP = 100;
+	MaxHP = 100;
 }
 
 // Called every frame
