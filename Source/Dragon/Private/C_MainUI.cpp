@@ -49,6 +49,7 @@ void UC_MainUI::OnGameOver()
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("OnGameOver"));
 	GamePlayingCanvas->SetVisibility(ESlateVisibility::Hidden);
 	GameOverCanvas->SetVisibility(ESlateVisibility::Visible);
+
 	GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeUIOnly());
 	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
 }
