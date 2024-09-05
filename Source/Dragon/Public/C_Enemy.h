@@ -27,15 +27,17 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UPROPERTY(EditAnywhere, Category = "Enemy")
+	UPROPERTY(EditAnywhere,BlueprintReadOnly, Category = "Enemy")
 	float MaxHP;
-	UPROPERTY(EditAnywhere, Category = "Enemy")
+	UPROPERTY(EditAnywhere,BlueprintReadOnly, Category = "Enemy")
 	float CurrentHP;
 
-	void Die();
+	UPROPERTY(EditDefaultsOnly, Category = "Enemy")
+	bool bCanHurt = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "FSM")
 	UC_EnemyFSM* EnemyFSM;
 
+	void GetHurt(float Amount);
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 };

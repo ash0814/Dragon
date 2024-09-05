@@ -61,8 +61,8 @@ public:
 
     void OnDamageProcess();        // event function
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = FSM)
-    int32 hp = 3;
+ /*   UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = FSM)
+    int32 hp = 30;*/
 
     UPROPERTY(EditAnywhere, Category = FSM)
     float damageDelayTime = 2.0f;
@@ -78,4 +78,8 @@ public:
 
     FVector randomPos;
     bool GetRandomPositionInNavMesh(FVector centerLocation, float radius, FVector& dest);
+
+    void SetState(EEnemyState newState);
+    UPROPERTY(EditAnywhere, Category = FSM)
+    bool bCanChangeState = true;
 };

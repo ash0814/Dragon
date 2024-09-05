@@ -5,10 +5,14 @@
 #include "C_Enemy.h"
 #include "C_Player.h"
 #include "C_EnemyAnimInstance.h"
+#include "C_GameMode.h"
+#include "C_MainUI.h"
 #include <Kismet/GameplayStatics.h>
 #include <Components/CapsuleComponent.h>
 #include <AIController.h>
 #include <NavigationSystem.h>
+#include "Navigation/PathFollowingComponent.h"
+
 
 // Sets default values for this component's properties
 UC_EnemyFSM::UC_EnemyFSM()
@@ -72,9 +76,9 @@ void UC_EnemyFSM::IdleState()
 	currentTime += GetWorld()->DeltaTimeSeconds;
 	if (currentTime > idleDelayTime)
 	{
-		mState = EEnemyState::Move;
+		SetState(EEnemyState::Move);
 		currentTime = 0;
-		anim->animState = mState;
+		GetRandomPositionInNavMesh(me->GetActorLocation(), 500, randomPos);
 	}
 }
 
@@ -84,46 +88,83 @@ void UC_EnemyFSM::MoveState()
 	FVector dir = destination - me->GetActorLocation();
 	//me->AddMovementInput(dir.GetSafeNormal());
 	
-	ai->MoveToLocation(destination);
+	//ai->MoveToLocation(destination);
 	
-	//auto ns = UNavigationSystemV1::GetNavigationSystem(GetWorld());
+	auto ns = UNavigationSystemV1::GetNavigationSystem(GetWorld());
 
-	//FPathFindingQuery query;
-	//FAIMoveRequest req;	// struct
-	//req.SetAcceptanceRadius(3);
-	//req.SetGoalLocation(destination);
-	//ai->BuildPathfindingQuery(req, query);
-	//FPathFindingResult r = ns->FindPathSync(query);
+	FPathFindingQuery query;
+	FAIMoveRequest req;	// struct
+	req.SetAcceptanceRadius(3);
+	req.SetGoalLocation(destination);
+	ai->BuildPathfindingQuery(req, query);
+	FPathFindingResult r = ns->FindPathSync(query);
 	
+	if (r.Result == ENavigationQueryResult::Success)
+	{
+		ai->MoveToLocation(destination);
+	}
+	else
+	{
+		auto result = ai->MoveToLocation(randomPos);
+
+		if (result == EPathFollowingRequestResult::AlreadyAtGoal)
+		{
+			GetRandomPositionInNavMesh(me->GetActorLocation(), 500, randomPos);
+		}
+	}
+
 	if (dir.Size() < attackRange)
 	{
-		mState = EEnemyState::Attack;
-		anim->animState = mState;
+		ai->StopMovement();
+		SetState(EEnemyState::Attack);
 		anim->bAttackPlay = true;
-		currentTime = attackDelayTime;
+		currentTime = 0;
 	}
 }
 
 void UC_EnemyFSM::FlyState()
 {
+	bCanChangeState = false;
+	currentTime += GetWorld()->DeltaTimeSeconds;
+	if (currentTime >= 10.0)
+	{
+		bCanChangeState = true;
+		currentTime = 0;
+		SetState(EEnemyState::Move);
+	} else if (currentTime >= 7.0) {
+		anim->bCanFlyForward = false;
+	} else if (currentTime >= 3.0)
+	{
+		FVector destination = player->GetActorLocation();
+		FVector dir = destination - me->GetActorLocation();	
+		//me->AddMovementInput(dir.GetSafeNormal());
+		ai->MoveToLocation(destination);
+		anim->bCanFlyForward = true;
+	}
 }
 
 void UC_EnemyFSM::AttackState()
 {
+	//currentTime += GetWorld()->DeltaTimeSeconds;	
+	//if (currentTime > attackDelayTime)
+	//{
+	//	currentTime = 0;
+	//	anim->bAttackPlay = true;
+	//}
+	bCanChangeState = false;
 	currentTime += GetWorld()->DeltaTimeSeconds;
-	if (currentTime > attackDelayTime)
+	if (currentTime >= 3.0)
 	{
-		// PRINT_LOG(TEXT("Attack!!!!"));
+		bCanChangeState = true;
 		currentTime = 0;
-		anim->bAttackPlay = true;
+		SetState(EEnemyState::Fly);
 	}
-
-	FVector distance = player->GetActorLocation() - me->GetActorLocation();
+	/*FVector distance = player->GetActorLocation() - me->GetActorLocation();
 	if (distance.Size() > attackRange)
 	{
-		mState = EEnemyState::Move;
-		anim->animState = mState;
-	}
+		SetState(EEnemyState::Move);
+		GetRandomPositionInNavMesh(me->GetActorLocation(), 500, randomPos);
+	}*/
 }
 
 void UC_EnemyFSM::DamageState()
@@ -131,9 +172,8 @@ void UC_EnemyFSM::DamageState()
 	currentTime += GetWorld()->DeltaTimeSeconds;
 	if (currentTime > damageDelayTime)
 	{
-		mState = EEnemyState::Idle;
+		SetState(EEnemyState::Idle);
 		currentTime = 0;
-		anim->animState = mState;
 	}
 }
 
@@ -143,6 +183,7 @@ void UC_EnemyFSM::DieState()
 	{
 		return;
 	}
+
 	FVector P0 = me->GetActorLocation();
 	FVector vt = FVector::DownVector * dieSpeed * GetWorld()->DeltaTimeSeconds; 
 	FVector P = P0 + vt;
@@ -156,24 +197,33 @@ void UC_EnemyFSM::DieState()
 
 void UC_EnemyFSM::OnDamageProcess()
 {
-	hp--;
-	if (hp>0)
+	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("OnDamageProcess"));
+	if (mState == EEnemyState::Die)
 	{
-		mState = EEnemyState::Damage;
+		return;
+	}
+	if (me->CurrentHP > 0)
+	{
+		SetState(EEnemyState::Damage);
 
 		currentTime = 0;
 
-		int32 index = FMath::RandRange(0, 1);
-		FString sectionName = FString::Printf(TEXT("Damage%d"), index);
-		anim->PlayDamageAnim(*sectionName);
+		//int32 index = FMath::RandRange(0, 1);
+		//FString sectionName = FString::Printf(TEXT("Damage%d"), index);
+		//anim->PlayDamageAnim(*sectionName);
 	}
 	else
 	{
-		mState = EEnemyState::Die;
+		// Get Gamemode
+		auto GameMode = Cast<AC_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+		if (GameMode != nullptr)
+			GameMode->GameOver();
+		SetState(EEnemyState::Die);
 		me->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		anim->PlayDamageAnim(TEXT("Die"));
 	}
-	anim->animState = mState;
+	//anim->animState = mState;
+	ai->StopMovement();
 }
 
 bool UC_EnemyFSM::GetRandomPositionInNavMesh(FVector centerLocation, float radius, FVector& dest)
@@ -183,4 +233,14 @@ bool UC_EnemyFSM::GetRandomPositionInNavMesh(FVector centerLocation, float radiu
 	bool result = ns->GetRandomReachablePointInRadius(centerLocation, radius, loc);
 	dest = loc.Location;
 	return result;
+}
+
+void UC_EnemyFSM::SetState(EEnemyState newState)
+{
+	if (bCanChangeState == false)
+	{
+		return;
+	}
+	mState = newState;
+	anim->animState = mState;
 }

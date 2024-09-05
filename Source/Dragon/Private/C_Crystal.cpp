@@ -6,7 +6,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Kismet/GameplayStatics.h"
-
+#include "C_GameMode.h"
+#include "C_MainUI.h"
 
 // Sets default values
 AC_Crystal::AC_Crystal()
@@ -38,11 +39,20 @@ void AC_Crystal::BeginPlay()
 void AC_Crystal::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void AC_Crystal::Die()
 {
+	// Set GameMode Crystal count--
+	AC_GameMode* GameMode = Cast<AC_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode != nullptr)
+	{
+		GameMode->TotalCrystalCount--;
+		if (GameMode->TotalCrystalCount <= 0)
+		{
+			GameMode->MainUI->OnChangeCrystalCountZero();
+		}
+	}
 	Destroy();
 }
 
