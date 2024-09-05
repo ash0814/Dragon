@@ -24,7 +24,7 @@ public:
 
 
 public:
-	UPROPERTY(EditAnywhere, Category = "Weapon")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
 	TArray<TSubclassOf<class AC_Weapon>> WeaponClasses;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
@@ -58,7 +58,8 @@ public:
 protected:
 	virtual void InitializeComponent() override;
 
-private:
+public:
+	UFUNCTION(BlueprintCallable)
 	AC_Weapon* GetCurrentWeapon();
 
 public://Set Current Mode
@@ -102,7 +103,8 @@ public:
 private:
 	EWeaponType Type = EWeaponType::MAX;
 
-private:
+public:
+	UPROPERTY(BlueprintReadOnly)
 	TArray<class AC_Weapon*> Weapons;
 	class ACharacter* OwnerCharacter;
 		

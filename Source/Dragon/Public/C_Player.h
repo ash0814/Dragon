@@ -33,7 +33,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	class UCameraComponent* tpsCamComp;
 
-	UPROPERTY(VisibleAnywhere, Category = "WeaponComp")
+	UPROPERTY(VisibleAnywhere,  BlueprintReadOnly, Category = "WeaponComp")
 	class UC_WeaponComponent* WeaponComp;
 
 	// ют╥б
