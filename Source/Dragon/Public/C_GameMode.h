@@ -28,6 +28,7 @@ public:
 	AC_GameMode();
 
 	virtual void BeginPlay() override;
+	void InitializeCrystalCount();
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GameState")
@@ -49,5 +50,7 @@ public:
 	void Playing();
 	void Pause();
 	void GameOver();
+
+	void LoadNextLevel();
 
 };
