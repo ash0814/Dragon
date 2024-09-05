@@ -32,6 +32,9 @@ public:
 	UPROPERTY(meta=(BindWidget))
 	class UCanvasPanel* GameOverCanvas;
 
+	UPROPERTY(meta=(BindWidget))
+	class UCanvasPanel* PlayerCanvas;
+
 	UFUNCTION()
 	void OnClickGameStart();
 
@@ -40,4 +43,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void OnGameOver();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnGameStart();
 };

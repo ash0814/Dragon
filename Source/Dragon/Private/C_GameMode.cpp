@@ -6,6 +6,7 @@
 #include "C_Player.h"
 #include "C_Weapon.h"
 #include "C_WeaponComponent.h"
+#include "C_PlayerUI.h"
 #include "Kismet/GameplayStatics.h"
 
 AC_GameMode::AC_GameMode()
@@ -22,9 +23,13 @@ void AC_GameMode::BeginPlay()
 {
     Super::BeginPlay();
 
-    UE_LOG(LogTemp, Warning, TEXT("AC_GameMode::BeginPlay Called"));
-
-    CurrentState = EGameState::Ready;
+	CurrentState = EGameState::Ready;
+	MainUI = CreateWidget<UC_MainUI>(GetWorld(), MainUIWidgetFactory);
+	if (MainUI != nullptr)
+		MainUI->AddToViewport();
+	
+	GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeUIOnly());
+	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
 
     MainUI = CreateWidget<UC_MainUI>(GetWorld(), MainUIWidgetFactory);
     if (MainUI != nullptr)
@@ -33,14 +38,14 @@ void AC_GameMode::BeginPlay()
     GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeUIOnly());
     GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
 
-    // Å©¸®½ºÅ» ÃÊ±âÈ­ Áö¿¬ ¼³Á¤ (0.2ÃÊ ÈÄ Å©¸®½ºÅ» °³¼ö¸¦ ÃÊ±âÈ­)
+    // Å©ï¿½ï¿½ï¿½ï¿½Å» ï¿½Ê±ï¿½È­ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (0.2ï¿½ï¿½ ï¿½ï¿½ Å©ï¿½ï¿½ï¿½ï¿½Å» ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­)
     FTimerHandle TimerHandle;
     GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AC_GameMode::InitializeCrystalCount, 0.2f, false);
 }
 
 void AC_GameMode::InitializeCrystalCount()
 {
-    // ¸ðµç Å©¸®½ºÅ» ¾×ÅÍ¸¦ °Ë»öÇÏ¿© °³¼ö¸¦ ÃÊ±âÈ­
+    // ï¿½ï¿½ï¿½ Å©ï¿½ï¿½ï¿½ï¿½Å» ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½Ë»ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
     TArray<AActor*> CrystalActors;
     UGameplayStatics::GetAllActorsOfClass(GetWorld(), AC_Crystal::StaticClass(), CrystalActors);
     TotalCrystalCount = CrystalActors.Num();
@@ -50,7 +55,27 @@ void AC_GameMode::InitializeCrystalCount()
 
 void AC_GameMode::Tick(float DeltaTime)
 {
-    Super::Tick(DeltaTime);
+	Super::Tick(DeltaTime);
+
+	switch (CurrentState)
+	{
+	case EGameState::Ready:
+		Ready();
+		break;
+	case EGameState::Start:
+		Start();
+		break;
+	}
+}
+
+
+
+void AC_GameMode::Ready()
+{
+}
+
+void AC_GameMode::Start()
+{
 }
 
 void AC_GameMode::GameOver()
@@ -58,19 +83,29 @@ void AC_GameMode::GameOver()
     MainUI->OnGameOver();
 
    
-    // 3ÃÊ ÈÄ¿¡ ·¹º§À» ´Ù½Ã ·Îµå
+    // 3ï¿½ï¿½ ï¿½Ä¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù½ï¿½ ï¿½Îµï¿½
     FTimerHandle GameOverTimerHandle;
     GetWorld()->GetTimerManager().SetTimer(GameOverTimerHandle, this, &AC_GameMode::LoadNextLevel, 3.0f, false);
 }
 
 void AC_GameMode::LoadNextLevel()
 {
-    // ÇöÀç ·¹º§ ÀÌ¸§À» °¡Á®¿Í¼­ ´Ù½Ã ·ÎµåÇÏ´Â ÄÚµå
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ ï¿½Ù½ï¿½ ï¿½Îµï¿½ï¿½Ï´ï¿½ ï¿½Úµï¿½
     FString CurrentLevelName = GetWorld()->GetMapName();
-    CurrentLevelName.RemoveFromStart(GetWorld()->StreamingLevelsPrefix); // °æ·Î ºÎºÐ Á¦°Å
+    CurrentLevelName.RemoveFromStart(GetWorld()->StreamingLevelsPrefix); // ï¿½ï¿½ï¿½ ï¿½Îºï¿½ ï¿½ï¿½ï¿½ï¿½
 
     UGameplayStatics::OpenLevel(this, FName(*CurrentLevelName));
 
-    // ·Î±× Ãß°¡
+    // ï¿½Î±ï¿½ ï¿½ß°ï¿½
     UE_LOG(LogTemp, Warning, TEXT("Reloading Level: %s"), *CurrentLevelName);
+	// MainUI->OnGameOver();
+	//// get player
+	//AC_Player *player = Cast<AC_Player>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	//if (player != nullptr)
+	//{
+	//	// player weapon off
+	//	player->WeaponComp->End_Fire();
+	//}
+	//GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeUIOnly());
+	//GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
 }

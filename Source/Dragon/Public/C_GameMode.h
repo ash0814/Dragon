@@ -37,7 +37,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<class UUserWidget> MainUIWidgetFactory;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditInstanceOnly, Category = "UI")
 	class UC_MainUI* MainUI;
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Crystal")

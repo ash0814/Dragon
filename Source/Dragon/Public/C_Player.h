@@ -33,8 +33,14 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	class UCameraComponent* tpsCamComp;
 
-	UPROPERTY(VisibleAnywhere, Category = "WeaponComp")
+	UPROPERTY(VisibleAnywhere,  BlueprintReadOnly, Category = "WeaponComp")
 	class UC_WeaponComponent* WeaponComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player")
+	float MaxHP;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player")
+	float CurrentHP;
 
 	// 입력
 public:
@@ -81,10 +87,12 @@ private:
 public:
 	bool bIsWeapon;
 	bool bIsRun;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player")
+	bool bIsFlying = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player")
+	bool bCanFly = true;        // 플레이어가 날 수 있는지 여부
 
 private:
-	bool bIsFlying = false;
-	bool bCanFly = true;        // 플레이어가 날 수 있는지 여부
 	float FlightTime = 5.0f;   // 날 수 있는 최대 시간 (초)
 	float CooldownTime = 3.0f; // 다시 날기까지 기다려야 하는 쿨타임 시간 (초)
 
@@ -94,5 +102,6 @@ private:
 	void StopFlying();          // 날기를 중단하는 함수
 	void ResetFlyAbility();     // 다시 날 수 있는 상태로 초기화하는 함수
 
+    float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 };
 

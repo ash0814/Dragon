@@ -78,7 +78,7 @@ void UC_EnemyFSM::IdleState()
 	{
 		SetState(EEnemyState::Move);
 		currentTime = 0;
-		GetRandomPositionInNavMesh(me->GetActorLocation(), 500, randomPos);
+		//GetRandomPositionInNavMesh(me->GetActorLocation(), 500, randomPos);
 	}
 }
 
@@ -86,9 +86,8 @@ void UC_EnemyFSM::MoveState()
 {
 	FVector destination = player->GetActorLocation();
 	FVector dir = destination - me->GetActorLocation();
-	//me->AddMovementInput(dir.GetSafeNormal());
 	
-	//ai->MoveToLocation(destination);
+	SetLocationToPlayer();
 	
 	auto ns = UNavigationSystemV1::GetNavigationSystem(GetWorld());
 
@@ -119,6 +118,10 @@ void UC_EnemyFSM::MoveState()
 		SetState(EEnemyState::Attack);
 		anim->bAttackPlay = true;
 		currentTime = 0;
+	} else if (dir.Size() > 300)
+	{
+		SetState(EEnemyState::Fly);
+		currentTime = 0;
 	}
 }
 
@@ -135,22 +138,13 @@ void UC_EnemyFSM::FlyState()
 		anim->bCanFlyForward = false;
 	} else if (currentTime >= 3.0)
 	{
-		FVector destination = player->GetActorLocation();
-		FVector dir = destination - me->GetActorLocation();	
-		//me->AddMovementInput(dir.GetSafeNormal());
-		ai->MoveToLocation(destination);
+		SetLocationToPlayer();
 		anim->bCanFlyForward = true;
 	}
 }
 
 void UC_EnemyFSM::AttackState()
 {
-	//currentTime += GetWorld()->DeltaTimeSeconds;	
-	//if (currentTime > attackDelayTime)
-	//{
-	//	currentTime = 0;
-	//	anim->bAttackPlay = true;
-	//}
 	bCanChangeState = false;
 	currentTime += GetWorld()->DeltaTimeSeconds;
 	if (currentTime >= 3.0)
@@ -159,12 +153,6 @@ void UC_EnemyFSM::AttackState()
 		currentTime = 0;
 		SetState(EEnemyState::Fly);
 	}
-	/*FVector distance = player->GetActorLocation() - me->GetActorLocation();
-	if (distance.Size() > attackRange)
-	{
-		SetState(EEnemyState::Move);
-		GetRandomPositionInNavMesh(me->GetActorLocation(), 500, randomPos);
-	}*/
 }
 
 void UC_EnemyFSM::DamageState()
@@ -179,19 +167,22 @@ void UC_EnemyFSM::DamageState()
 
 void UC_EnemyFSM::DieState()
 {
-	if (anim->bDieDone == false)
-	{
-		return;
-	}
+	bCanChangeState = false;
+	me->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	me->GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	FVector P0 = me->GetActorLocation();
-	FVector vt = FVector::DownVector * dieSpeed * GetWorld()->DeltaTimeSeconds; 
-	FVector P = P0 + vt;
-	me->SetActorLocation(P);
-
-	if (P.Z < -200.0f)
+	currentTime += GetWorld()->DeltaTimeSeconds;
+	if (currentTime > 2.2)
 	{
-		me->Destroy();
+		FVector P0 = me->GetActorLocation();
+		FVector vt = FVector::DownVector * dieSpeed * GetWorld()->DeltaTimeSeconds;
+		FVector P = P0 + vt;
+		me->SetActorLocation(P);
+
+		if (P.Z < -200.0f)
+		{
+			me->Destroy();
+		}
 	}
 }
 
@@ -205,24 +196,19 @@ void UC_EnemyFSM::OnDamageProcess()
 	if (me->CurrentHP > 0)
 	{
 		SetState(EEnemyState::Damage);
-
 		currentTime = 0;
-
-		//int32 index = FMath::RandRange(0, 1);
-		//FString sectionName = FString::Printf(TEXT("Damage%d"), index);
-		//anim->PlayDamageAnim(*sectionName);
 	}
 	else
 	{
-		// Get Gamemode
 		auto GameMode = Cast<AC_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 		if (GameMode != nullptr)
 			GameMode->GameOver();
+		
+		bCanChangeState = true;
+		currentTime = 0;
 		SetState(EEnemyState::Die);
-		me->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		anim->PlayDamageAnim(TEXT("Die"));
+		//anim->PlayDamageAnim(TEXT("Die"));
 	}
-	//anim->animState = mState;
 	ai->StopMovement();
 }
 
@@ -244,3 +230,10 @@ void UC_EnemyFSM::SetState(EEnemyState newState)
 	mState = newState;
 	anim->animState = mState;
 }
+
+void UC_EnemyFSM::SetLocationToPlayer()
+{
+	FVector destination = player->GetActorLocation();
+	ai->MoveToLocation(destination);
+}
+

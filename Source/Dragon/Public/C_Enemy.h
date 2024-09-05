@@ -38,6 +38,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "FSM")
 	UC_EnemyFSM* EnemyFSM;
 
+
 	void GetHurt(float Amount);
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 };
