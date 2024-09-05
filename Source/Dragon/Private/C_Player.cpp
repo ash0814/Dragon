@@ -1,6 +1,5 @@
 	#include "C_Player.h"
 	#include "C_WeaponComponent.h"
-
 	#include <GameFramework/SpringArmComponent.h>
 	#include <Camera/CameraComponent.h>
 	#include "EnhancedInputSubsystems.h"
@@ -59,24 +58,7 @@
 	void AC_Player::Tick(float DeltaTime)
 	{
 		Super::Tick(DeltaTime);
-		/*
-		// 방향 벡터와 속도, DeltaTime을 이용하여 이동 벡터 계산 (X, Y, Z 모두 포함)
-		FVector Movement = direction * walkSpeed * DeltaTime;
-
-		// 캐릭터의 현재 위치를 가져옴
-		FVector CurrentLocation = GetActorLocation();
-
-		// 최종 위치를 계산
-		FVector NewLocation = CurrentLocation + Movement;
-
-		// 계산된 위치로 캐릭터를 이동
-		SetActorLocation(NewLocation);
-
-		// 이동 벡터를 로그로 출력하여 확인
-		UE_LOG(LogTemp, Warning, TEXT("Movement -> X: %f, Y: %f, Z: %f"), Movement.X, Movement.Y, Movement.Z);
-
-		// 매 프레임마다 direction 초기화
-		direction = FVector::ZeroVector;*/
+	
 		PlayerMove();
 
 	}
@@ -147,22 +129,64 @@
 
 	void AC_Player::Fly(const FInputActionValue& inputValue)
 	{
-		// Z축 방향 이동 값을 설정 (양수: 위로, 음수: 아래로)
+		// Z축 방향 입력 값 (양수일 경우 위로, 음수일 경우 아래로)
 		float flyValue = inputValue.Get<float>();
+		
 
-		// Z축 이동 속도를 고려하여 값 설정
-		direction.Z = flyValue;
-
-		// 입력 값이 양수이면 중력을 비활성화하고 비행 모드로 전환
-		if (flyValue > 0.0f)
+		// flyValue가 양수이고, 비행 중이 아니면 비행 시작
+		if (flyValue > 0.0f && bCanFly)
 		{
+			direction.Z = flyValue;
+			// 플레이어가 날기 시작
 			GetCharacterMovement()->SetMovementMode(MOVE_Flying);
 			GetCharacterMovement()->GravityScale = 0.0f;
+			GetCharacterMovement()->BrakingDecelerationFlying = 2048.0f;
+
+			// 이미 비행 중이 아니면 타이머 설정
+			if (!bIsFlying)
+			{
+				GetWorldTimerManager().SetTimer(FlightTimerHandle, this, &AC_Player::StopFlying, FlightTime, false);
+				UE_LOG(LogTemp, Warning, TEXT("Timer set! FlightTime: %f seconds"), FlightTime);
+			}
+
+			// 비행 상태를 true로 설정
+			bIsFlying = true;
 		}
-		// 입력 값이 음수이면 중력을 활성화하고 걷기 모드로 전환
 		else if (flyValue < 0.0f)
 		{
-			GetCharacterMovement()->SetMovementMode(MOVE_Walking);
-			GetCharacterMovement()->GravityScale = 1.0f;
+			// 음수 값 입력 시 즉시 날기 중단
+			StopFlying();
 		}
+	}
+	void AC_Player::StopFlying()
+	{
+		// 비행 모드를 중단하고 다시 걷기 모드로 전환
+		GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+		GetCharacterMovement()->GravityScale = 1.0f;
+		GetCharacterMovement()->BrakingDecelerationWalking = 1024.0f;
+
+		// 비행 상태를 종료
+		bIsFlying = false;
+
+		// 비행이 종료되면 바로 비행을 못하게 설정
+		bCanFly = false;  // 비행 불가능 상태로 변경
+
+		// 타이머 초기화
+		GetWorldTimerManager().ClearTimer(FlightTimerHandle);
+
+		// 쿨타임 후 다시 비행할 수 있도록 타이머 설정
+		if (!GetWorldTimerManager().IsTimerActive(CooldownTimerHandle)) // 중복 방지
+		{
+			GetWorldTimerManager().SetTimer(CooldownTimerHandle, this, &AC_Player::ResetFlyAbility, CooldownTime, false);
+		}
+
+		// 로그 출력
+		UE_LOG(LogTemp, Warning, TEXT("StopFlying called, bCanFly set to false. Cooldown started."));
+	}
+
+
+	void AC_Player::ResetFlyAbility()
+	{
+		// 쿨타임 후 다시 날 수 있게 설정
+		bCanFly = true;
 	}
