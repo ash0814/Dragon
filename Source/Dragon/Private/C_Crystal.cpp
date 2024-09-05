@@ -44,8 +44,6 @@ void AC_Crystal::Die()
     if (GameMode != nullptr)
     {
         GameMode->TotalCrystalCount--;
-        UE_LOG(LogTemp, Warning, TEXT("Crystal Destroyed. Remaining Crystals: %d"), GameMode->TotalCrystalCount);
-
         // 모든 크리스탈이 파괴되었을 때
         if (GameMode->TotalCrystalCount <= 0)
         {
@@ -64,9 +62,6 @@ float AC_Crystal::TakeDamage(float damage, FDamageEvent const& DamageEvent, ACon
     {
         // 체력 감소
         CurrentHP -= ActualDamage;
-
-        UE_LOG(LogTemp, Warning, TEXT("CurrentHP: %f"), CurrentHP);
-
         // 체력이 0 이하이면 사망 처리
         if (CurrentHP <= 0.0f)
         {

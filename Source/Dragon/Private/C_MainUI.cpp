@@ -32,7 +32,6 @@ void UC_MainUI::NativeConstruct()
 void UC_MainUI::OnClickGameStart()
 {
 	AC_GameMode* GameMode = Cast<AC_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("OnClickGameStart"));
 	if (GameMode != nullptr)
 	{
 		GameMode->CurrentState = EGameState::Start;
@@ -47,13 +46,11 @@ void UC_MainUI::OnClickGameStart()
 
 void UC_MainUI::OnChangeCrystalCountZero()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("OnChangeCrystalCountZero"));
 	DestroyCrystalDone->SetActiveWidgetIndex(1);
 }
 
 void UC_MainUI::OnGameOver()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("OnGameOver"));
 	GamePlayingCanvas->SetVisibility(ESlateVisibility::Hidden);
 	PlayerCanvas->SetVisibility(ESlateVisibility::Hidden);
 	GameOverCanvas->SetVisibility(ESlateVisibility::Visible);

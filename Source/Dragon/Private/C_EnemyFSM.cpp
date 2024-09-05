@@ -46,7 +46,6 @@ void UC_EnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	FString logMsg = UEnum::GetValueAsString(mState);
-	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Cyan, logMsg);
 	
 	switch(mState)
 	{
@@ -188,7 +187,6 @@ void UC_EnemyFSM::DieState()
 
 void UC_EnemyFSM::OnDamageProcess()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("OnDamageProcess"));
 	if (mState == EEnemyState::Die)
 	{
 		return;

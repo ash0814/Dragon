@@ -193,7 +193,6 @@
 
 	float AC_Player::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("Player Damaged"));
 		CurrentHP -= DamageAmount;
 		if (CurrentHP <= 0)
 		{

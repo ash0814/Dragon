@@ -6,7 +6,6 @@
 #include "C_Player.h"
 #include "C_Weapon.h"
 #include "C_WeaponComponent.h"
-#include "C_PlayerUI.h"
 #include "Kismet/GameplayStatics.h"
 
 AC_GameMode::AC_GameMode()
@@ -75,10 +74,8 @@ void AC_GameMode::GameOver()
 {
     MainUI->OnGameOver();
 
-   
-    // 3�� �Ŀ� ������ �ٽ� �ε�
     FTimerHandle GameOverTimerHandle;
-    GetWorld()->GetTimerManager().SetTimer(GameOverTimerHandle, this, &AC_GameMode::LoadNextLevel, 3.0f, false);
+    GetWorld()->GetTimerManager().SetTimer(GameOverTimerHandle, this, &AC_GameMode::LoadNextLevel, 10.0f, false);
 }
 
 void AC_GameMode::LoadNextLevel()

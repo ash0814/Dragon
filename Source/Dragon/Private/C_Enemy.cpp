@@ -47,7 +47,6 @@ void AC_Enemy::GetHurt(float Amount)
 {
     EnemyFSM->OnDamageProcess();
     CurrentHP -= Amount;
-    UE_LOG(LogTemp, Warning, TEXT("CurrentHP: %f"), CurrentHP);
 }
 
 float AC_Enemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
