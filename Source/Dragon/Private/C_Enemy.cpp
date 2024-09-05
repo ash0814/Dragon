@@ -33,6 +33,16 @@ void AC_Enemy::BeginPlay()
     MaxHP = 100;
 }
 
+void AC_Enemy::Tick(float DeltaTime)
+{
+    Super::Tick(DeltaTime);
+}
+
+void AC_Enemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+    Super::SetupPlayerInputComponent(PlayerInputComponent);
+}
+
 void AC_Enemy::GetHurt(float Amount)
 {
     EnemyFSM->OnDamageProcess();

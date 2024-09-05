@@ -31,13 +31,6 @@ void AC_GameMode::BeginPlay()
 	GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeUIOnly());
 	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
 
-    MainUI = CreateWidget<UC_MainUI>(GetWorld(), MainUIWidgetFactory);
-    if (MainUI != nullptr)
-        MainUI->AddToViewport();
-
-    GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeUIOnly());
-    GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
-
     // ũ����Ż �ʱ�ȭ ���� ���� (0.2�� �� ũ����Ż ������ �ʱ�ȭ)
     FTimerHandle TimerHandle;
     GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AC_GameMode::InitializeCrystalCount, 0.2f, false);
