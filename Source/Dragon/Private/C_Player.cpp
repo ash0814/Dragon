@@ -42,8 +42,9 @@
 	// Called when the game starts or when spawned
 	void AC_Player::BeginPlay()
 	{
-		
 		Super::BeginPlay();
+		MaxHP = 100;
+		CurrentHP = MaxHP;
 		auto pc = Cast<APlayerController>(Controller);
 		if (pc)
 		{
@@ -189,4 +190,21 @@
 	{
 		// 쿨타임 후 다시 날 수 있게 설정
 		bCanFly = true;
+	}
+
+	void AC_Player::AnyDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+	{
+	}
+
+	float AC_Player::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("Player Damaged"));
+		CurrentHP -= DamageAmount;
+		if (CurrentHP <= 0)
+		{
+			// 플레이어가 죽었을 때 처리
+			// 게임 오버 처리 등
+			GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("Player Dead"));
+		}
+		return 0.0f;
 	}

@@ -170,11 +170,7 @@ void UC_EnemyFSM::DieState()
 	bCanChangeState = false;
 	me->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	me->GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//if (anim->bDieDone == false)
-	//{
-	//	return;
-	//}
-	//me->Destroy();
+
 	currentTime += GetWorld()->DeltaTimeSeconds;
 	if (currentTime > 2.2)
 	{
