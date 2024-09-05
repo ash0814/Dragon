@@ -13,17 +13,17 @@ AC_W_AK47::AC_W_AK47()
 		HolsterSocketName = "Holster_Rifle";
 		RightSocketName = "Weapon_R";
 
-		static ConstructorHelpers::FObjectFinder<UAnimMontage> Anim(TEXT("/Script/Engine.AnimMontage'/Game/Project/Asset/AnimStarterPack/Montages/Equip_Rifle_Standing_Montage.Equip_Rifle_Standing_Montage'"));
+		static ConstructorHelpers::FObjectFinder<UAnimMontage> Anim(TEXT("/Script/Engine.AnimMontage'/Game/Player/Test/Equip_Rifle_TestStanding_Montage.Equip_Rifle_TestStanding_Montage'"));
 		if (Anim.Succeeded())
 			EquipMontage = Anim.Object;
 
 		EquipMontage_PlayRate = 2.0f;
-		LeftHandLocation = FVector(-37.0f, 12.5f, 7.0f);
+		LeftHandLocation = FVector(-30.0f, -5.0f, 9.0f);
 	}
 
 	//Reload
 	{
-		static ConstructorHelpers::FObjectFinder<UAnimMontage> Reload(TEXT("/Script/Engine.AnimMontage'/Game/Project/Asset/AnimStarterPack/AnimStarter/Reload_Rifle.Reload_Rifle'"));
+		static ConstructorHelpers::FObjectFinder<UAnimMontage> Reload(TEXT("/Script/Engine.AnimMontage'/Game/Player/Test/TestReload_Rifle.TestReload_Rifle'"));
 		if (Reload.Succeeded())
 			ReloadMontage = Reload.Object;
 
