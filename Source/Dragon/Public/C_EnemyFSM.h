@@ -78,4 +78,8 @@ public:
 
     FVector randomPos;
     bool GetRandomPositionInNavMesh(FVector centerLocation, float radius, FVector& dest);
+
+    void SetState(EEnemyState newState);
+    UPROPERTY(EditAnywhere, Category = FSM)
+    bool bCanChangeState = true;
 };

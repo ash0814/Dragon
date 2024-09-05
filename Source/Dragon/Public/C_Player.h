@@ -33,7 +33,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	class UCameraComponent* tpsCamComp;
 
-	UPROPERTY(VisibleAnywhere, Category = "WeaponComp")
+	UPROPERTY(EditAnywhere, Category = "WeaponComp")
 	class UC_WeaponComponent* WeaponComp;
 
 	// ют╥б
@@ -81,6 +81,5 @@ private:
 public:
 	bool bIsWeapon;
 	bool bIsRun;
-
 };
 

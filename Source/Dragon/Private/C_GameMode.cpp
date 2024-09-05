@@ -6,6 +6,9 @@
 #include "Blueprint/UserWidget.h"
 #include "UObject/ConstructorHelpers.h"
 #include "C_Crystal.h"
+#include "C_Player.h"
+#include "C_Weapon.h"
+#include "C_WeaponComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -42,4 +45,18 @@ void AC_GameMode::BeginPlay()
 void AC_GameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+void AC_GameMode::GameOver()
+{
+	MainUI->OnGameOver();
+	// get player
+	AC_Player *player = Cast<AC_Player>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	if (player != nullptr)
+	{
+		// player weapon off
+		player->WeaponComp->End_Fire();
+	}
+	GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeUIOnly());
+	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
 }

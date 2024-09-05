@@ -27,4 +27,7 @@ public:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = FSM)
     bool bDieDone = false;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = FSM)
+    bool bCanFlyForward = false;
 };

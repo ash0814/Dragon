@@ -19,7 +19,7 @@ enum class EGameState : uint8
 	GameOver
 };
 
-UCLASS()
+UCLASS()	
 class DRAGON_API AC_GameMode : public AGameModeBase
 {
 	GENERATED_BODY()
