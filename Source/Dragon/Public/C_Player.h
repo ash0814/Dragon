@@ -90,7 +90,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player")
 	bool bIsFlying = false;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player")
-	bool bCanFly = true;        // 플레이어가 날 수 있는지 여부
+	bool bCanFly = true;   // 플레이어가 날 수 있는지 여부
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	USoundBase* TakeDamageSound;
 
 private:
 	float FlightTime = 5.0f;   // 날 수 있는 최대 시간 (초)
@@ -101,7 +103,9 @@ private:
 
 	void StopFlying();          // 날기를 중단하는 함수
 	void ResetFlyAbility();     // 다시 날 수 있는 상태로 초기화하는 함수
-
-    float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+public:
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayDamageSound();
 };
 

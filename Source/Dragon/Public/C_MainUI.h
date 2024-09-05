@@ -33,6 +33,9 @@ public:
 	class UCanvasPanel* GameOverCanvas;
 
 	UPROPERTY(meta=(BindWidget))
+	class UCanvasPanel* GameClearCanvas;
+
+	UPROPERTY(meta=(BindWidget))
 	class UCanvasPanel* PlayerCanvas;
 
 	UFUNCTION()
@@ -43,6 +46,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void OnGameOver();
+
+	UFUNCTION(BlueprintCallable)
+	void OnGameClear();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnGameStart();

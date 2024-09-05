@@ -18,6 +18,7 @@ void UC_MainUI::NativeConstruct()
 	GamePlayingCanvas = Cast<UCanvasPanel>(GetWidgetFromName(TEXT("GamePlayingCanvas")));
 	DestroyCrystalDone = Cast<UWidgetSwitcher>(GetWidgetFromName(TEXT("DestroyCrystalDone")));
 	GameOverCanvas = Cast<UCanvasPanel>(GetWidgetFromName(TEXT("GameOverCanvas")));
+	GameClearCanvas = Cast<UCanvasPanel>(GetWidgetFromName(TEXT("GameClearCanvas")));
 	PlayerCanvas = Cast<UCanvasPanel>(GetWidgetFromName(TEXT("PlayerCanvas")));
 	if (GamePlayingCanvas != nullptr)
 		GamePlayingCanvas->SetVisibility(ESlateVisibility::Hidden);
@@ -25,6 +26,8 @@ void UC_MainUI::NativeConstruct()
 		GameOverCanvas->SetVisibility(ESlateVisibility::Hidden);
 	if (PlayerCanvas != nullptr)
 		PlayerCanvas->SetVisibility(ESlateVisibility::Hidden);
+	if (GameClearCanvas != nullptr)
+		GameClearCanvas->SetVisibility(ESlateVisibility::Hidden);
 	if (Btn_GameStart != nullptr)
 		Btn_GameStart->OnClicked.AddDynamic(this, &UC_MainUI::OnClickGameStart);
 }
@@ -54,9 +57,14 @@ void UC_MainUI::OnGameOver()
 	GamePlayingCanvas->SetVisibility(ESlateVisibility::Hidden);
 	PlayerCanvas->SetVisibility(ESlateVisibility::Hidden);
 	GameOverCanvas->SetVisibility(ESlateVisibility::Visible);
+}
 
-	//PlayerWidget->RemoveFromParent();
-	//PlayerWidget = nullptr;
+void UC_MainUI::OnGameClear()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Green, TEXT("Game Clear"));
+	GamePlayingCanvas->SetVisibility(ESlateVisibility::Hidden);
+	PlayerCanvas->SetVisibility(ESlateVisibility::Hidden);
+	GameClearCanvas->SetVisibility(ESlateVisibility::Visible);
 }
 
 

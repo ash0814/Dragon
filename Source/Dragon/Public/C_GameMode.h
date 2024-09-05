@@ -50,6 +50,7 @@ public:
 	void Playing();
 	void Pause();
 	void GameOver();
+	void GameClear();
 
 	void LoadNextLevel();
 

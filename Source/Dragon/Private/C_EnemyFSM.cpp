@@ -150,7 +150,7 @@ void UC_EnemyFSM::AttackState()
 	{
 		bCanChangeState = true;
 		currentTime = 0;
-		SetState(EEnemyState::Fly);
+		SetState(EEnemyState::Move);
 	}
 }
 
@@ -161,6 +161,7 @@ void UC_EnemyFSM::DamageState()
 	{
 		SetState(EEnemyState::Idle);
 		currentTime = 0;
+		SetState(EEnemyState::Fly);
 	}
 }
 
@@ -191,6 +192,13 @@ void UC_EnemyFSM::OnDamageProcess()
 	{
 		return;
 	}
+	if (mState == EEnemyState::Fly) {
+		SetLocationToPlayer();
+		if (player->bIsFlying == false) {
+			bCanChangeState = true;
+			SetState(EEnemyState::Move);
+		}
+	}
 	if (me->CurrentHP > 0)
 	{
 		SetState(EEnemyState::Damage);
@@ -200,7 +208,7 @@ void UC_EnemyFSM::OnDamageProcess()
 	{
 		auto GameMode = Cast<AC_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 		if (GameMode != nullptr)
-			GameMode->GameOver();
+			GameMode->GameClear();
 		
 		bCanChangeState = true;
 		currentTime = 0;
@@ -227,6 +235,7 @@ void UC_EnemyFSM::SetState(EEnemyState newState)
 	}
 	mState = newState;
 	anim->animState = mState;
+	bCanChangeState = true;
 }
 
 void UC_EnemyFSM::SetLocationToPlayer()

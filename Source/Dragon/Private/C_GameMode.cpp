@@ -74,8 +74,33 @@ void AC_GameMode::GameOver()
 {
     MainUI->OnGameOver();
 
+	// Get Player
+	AC_Player* player = Cast<AC_Player>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	if (player != nullptr)
+	{
+		// Player Weapon Off
+		player->WeaponComp->End_Fire();
+	}
+	GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeUIOnly());
+	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
+	player->Destroy();
+	FTimerHandle GameOverTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(GameOverTimerHandle, this, &AC_GameMode::LoadNextLevel, 3.0f, false);
+
+}
+
+void AC_GameMode::GameClear()
+{
+	MainUI->OnGameClear();
+	AC_Player* player = Cast<AC_Player>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	if (player != nullptr)
+	{
+		player->WeaponComp->End_Equip();
+		// Player Weapon Off
+		player->WeaponComp->End_Fire();
+	}
     FTimerHandle GameOverTimerHandle;
-    GetWorld()->GetTimerManager().SetTimer(GameOverTimerHandle, this, &AC_GameMode::LoadNextLevel, 10.0f, false);
+    GetWorld()->GetTimerManager().SetTimer(GameOverTimerHandle, this, &AC_GameMode::LoadNextLevel, 7.0f, false);
 }
 
 void AC_GameMode::LoadNextLevel()
