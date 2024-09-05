@@ -208,19 +208,16 @@ void UC_EnemyFSM::OnDamageProcess()
 
 		currentTime = 0;
 
-		int32 index = FMath::RandRange(0, 1);
-		FString sectionName = FString::Printf(TEXT("Damage%d"), index);
-		anim->PlayDamageAnim(*sectionName);
+		//int32 index = FMath::RandRange(0, 1);
+		//FString sectionName = FString::Printf(TEXT("Damage%d"), index);
+		//anim->PlayDamageAnim(*sectionName);
 	}
 	else
 	{
 		// Get Gamemode
 		auto GameMode = Cast<AC_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 		if (GameMode != nullptr)
-		{
-			//GameMode->MainUI->OnGameOver();
 			GameMode->GameOver();
-		}
 		SetState(EEnemyState::Die);
 		me->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		anim->PlayDamageAnim(TEXT("Die"));
