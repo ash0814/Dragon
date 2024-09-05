@@ -33,11 +33,17 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	class UCameraComponent* tpsCamComp;
 
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "WeaponComp")
+	UPROPERTY(VisibleAnywhere,  BlueprintReadOnly, Category = "WeaponComp")
 	class UC_WeaponComponent* WeaponComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player")
+	float MaxHP;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player")
+	float CurrentHP;
+
 	// 입력
 public:
-
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputMappingContext* imc_TPS;
 
@@ -82,11 +88,6 @@ public:
 	bool bIsWeapon;
 	bool bIsRun;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player")
-	float MaxHP;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player")
-	float CurrentHP;
-
 private:
 	bool bIsFlying = false;
 	bool bCanFly = true;        // 플레이어가 날 수 있는지 여부
@@ -99,7 +100,6 @@ private:
 	void StopFlying();          // 날기를 중단하는 함수
 	void ResetFlyAbility();     // 다시 날 수 있는 상태로 초기화하는 함수
 
-	void AnyDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
-	virtual float TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+    float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 };
 

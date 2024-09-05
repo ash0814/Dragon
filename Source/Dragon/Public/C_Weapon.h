@@ -30,14 +30,14 @@ protected: //Equip Value
 	UPROPERTY(EditDefaultsOnly, Category = "Equip")
 	FVector LeftHandLocation;			//LeftHand IK Target Location
 	
-protected://Reload
+public://Reload
 	UPROPERTY(EditDefaultsOnly, Category = "Reload")
 	class UAnimMontage* ReloadMontage;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Reload")
 	float ReloadMontage_PlayRate;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Reload")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Reload")
 	int32 DefaultBulletCount;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Reload")
@@ -133,6 +133,8 @@ private:
 	bool bFiring;
 	bool bReloading;
 
+public:
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int32 CurrentBulletCount;
 	class AC_Magazine* Magazine;
 
