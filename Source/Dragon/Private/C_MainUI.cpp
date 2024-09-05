@@ -7,6 +7,8 @@
 #include "Components/CanvasPanel.h"
 #include "Components/WidgetSwitcher.h"
 #include "Kismet/GameplayStatics.h"
+#include "Blueprint/UserWidget.h"
+#include "UObject/ConstructorHelpers.h"
 
 void UC_MainUI::NativeConstruct()
 {
@@ -56,6 +58,8 @@ void UC_MainUI::OnGameOver()
 	PlayerCanvas->SetVisibility(ESlateVisibility::Hidden);
 	GameOverCanvas->SetVisibility(ESlateVisibility::Visible);
 
+	//PlayerWidget->RemoveFromParent();
+	//PlayerWidget = nullptr;
 }
 
 
