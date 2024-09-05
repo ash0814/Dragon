@@ -77,3 +77,12 @@ float AC_Enemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, 
 	return 0.0f;
 }
 
+void AC_Enemy::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if (OtherActor && OtherActor != this && OtherComp)
+	{
+		// UGameplayStatics::ApplyDamage(OtherActor, 10.0f, GetInstigatorController(), this, UDamageType::StaticClass());
+		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("HIT"));
+	}
+}
+

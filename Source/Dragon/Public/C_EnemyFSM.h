@@ -82,4 +82,6 @@ public:
     void SetState(EEnemyState newState);
     UPROPERTY(EditAnywhere, Category = FSM)
     bool bCanChangeState = true;
+
+    void SetLocationToPlayer();
 };

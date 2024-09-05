@@ -50,13 +50,13 @@ void AC_GameMode::Tick(float DeltaTime)
 void AC_GameMode::GameOver()
 {
 	MainUI->OnGameOver();
-	// get player
-	AC_Player *player = Cast<AC_Player>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-	if (player != nullptr)
-	{
-		// player weapon off
-		player->WeaponComp->End_Fire();
-	}
-	GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeUIOnly());
-	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
+	//// get player
+	//AC_Player *player = Cast<AC_Player>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	//if (player != nullptr)
+	//{
+	//	// player weapon off
+	//	player->WeaponComp->End_Fire();
+	//}
+	//GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeUIOnly());
+	//GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
 }
