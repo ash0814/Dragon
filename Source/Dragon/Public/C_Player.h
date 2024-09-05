@@ -87,10 +87,12 @@ private:
 public:
 	bool bIsWeapon;
 	bool bIsRun;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player")
+	bool bIsFlying = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player")
+	bool bCanFly = true;        // 플레이어가 날 수 있는지 여부
 
 private:
-	bool bIsFlying = false;
-	bool bCanFly = true;        // 플레이어가 날 수 있는지 여부
 	float FlightTime = 5.0f;   // 날 수 있는 최대 시간 (초)
 	float CooldownTime = 3.0f; // 다시 날기까지 기다려야 하는 쿨타임 시간 (초)
 

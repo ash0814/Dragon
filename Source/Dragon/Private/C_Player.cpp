@@ -46,7 +46,7 @@
 		MaxHP = 100;
 		CurrentHP = MaxHP;
 		auto pc = Cast<APlayerController>(Controller);
-		if (pc)
+		if (pc)				
 		{
 			auto subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(pc->GetLocalPlayer());
 			if (subsystem)
@@ -109,7 +109,6 @@
 	}
 	void AC_Player::InputJump(const FInputActionValue& inputValue)
 	{
-
 		Jump();
 	}
 	void AC_Player::PlayerMove()

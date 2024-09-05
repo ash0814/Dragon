@@ -9,6 +9,7 @@
 #include "C_Player.h"
 #include "C_Weapon.h"
 #include "C_WeaponComponent.h"
+#include "C_PlayerUI.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -32,7 +33,7 @@ void AC_GameMode::BeginPlay()
 	MainUI = CreateWidget<UC_MainUI>(GetWorld(), MainUIWidgetFactory);
 	if (MainUI != nullptr)
 		MainUI->AddToViewport();
-
+	
 	GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeUIOnly());
 	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
 
@@ -45,6 +46,26 @@ void AC_GameMode::BeginPlay()
 void AC_GameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	switch (CurrentState)
+	{
+	case EGameState::Ready:
+		Ready();
+		break;
+	case EGameState::Start:
+		Start();
+		break;
+	}
+}
+
+
+
+void AC_GameMode::Ready()
+{
+}
+
+void AC_GameMode::Start()
+{
 }
 
 void AC_GameMode::GameOver()
