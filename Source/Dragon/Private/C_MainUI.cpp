@@ -7,6 +7,8 @@
 #include "Components/CanvasPanel.h"
 #include "Components/WidgetSwitcher.h"
 #include "Kismet/GameplayStatics.h"
+#include "Blueprint/UserWidget.h"
+#include "UObject/ConstructorHelpers.h"
 
 void UC_MainUI::NativeConstruct()
 {
@@ -36,6 +38,17 @@ void UC_MainUI::OnClickGameStart()
 	GamePlayingCanvas->SetVisibility(ESlateVisibility::Visible);
 	GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeGameOnly());
 	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = false;
+
+	//static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClassFinder(TEXT("/Game/UI/WBP_CPlayer.WBP_CPlayer'"));
+	//if (WidgetClassFinder.Succeeded())
+	//{
+	//	UClass* WidgetClass = WidgetClassFinder.Class;
+	//	PlayerWidget = CreateWidget<UUserWidget>(GetWorld(), WidgetClass);
+	//	if (PlayerWidget)
+	//	{
+	//		PlayerWidget->AddToViewport();
+	//	}
+	//}
 }
 
 void UC_MainUI::OnChangeCrystalCountZero()
@@ -50,6 +63,8 @@ void UC_MainUI::OnGameOver()
 	GamePlayingCanvas->SetVisibility(ESlateVisibility::Hidden);
 	GameOverCanvas->SetVisibility(ESlateVisibility::Visible);
 
+	//PlayerWidget->RemoveFromParent();
+	//PlayerWidget = nullptr;
 }
 
 

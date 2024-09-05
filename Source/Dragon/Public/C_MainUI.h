@@ -40,4 +40,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void OnGameOver();
+
+	UUserWidget* PlayerWidget;
 };
