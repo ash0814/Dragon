@@ -33,7 +33,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	class UCameraComponent* tpsCamComp;
 
-	UPROPERTY(EditAnywhere, Category = "WeaponComp")
+	UPROPERTY(VisibleAnywhere, Category = "WeaponComp")
 	class UC_WeaponComponent* WeaponComp;
 
 	// 입력
@@ -81,5 +81,18 @@ private:
 public:
 	bool bIsWeapon;
 	bool bIsRun;
+
+private:
+	bool bIsFlying = false;
+	bool bCanFly = true;        // 플레이어가 날 수 있는지 여부
+	float FlightTime = 5.0f;   // 날 수 있는 최대 시간 (초)
+	float CooldownTime = 3.0f; // 다시 날기까지 기다려야 하는 쿨타임 시간 (초)
+
+	FTimerHandle FlightTimerHandle;  // 플라이 시간 타이머
+	FTimerHandle CooldownTimerHandle; // 쿨타임 타이머
+
+	void StopFlying();          // 날기를 중단하는 함수
+	void ResetFlyAbility();     // 다시 날 수 있는 상태로 초기화하는 함수
+
 };
 
